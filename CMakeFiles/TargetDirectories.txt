@@ -1,0 +1,3 @@
+C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/TrabFinal/CMakeFiles/main.dir
+C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/TrabFinal/CMakeFiles/ALL_BUILD.dir
+C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/TrabFinal/CMakeFiles/ZERO_CHECK.dir

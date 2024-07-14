@@ -1,0 +1,74 @@
+[
+{
+  "directory": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++11 -o CMakeFiles\\main.dir\\src\\main.cpp.obj -c C:\\Users\\biaso\\Desktop\\UFRGS\\semestre5\\fcg\\fcg-opengl\\src\\main.cpp",
+  "file": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/src/main.cpp",
+  "output": "CMakeFiles/main.dir/src/main.cpp.obj"
+},
+{
+  "directory": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++11 -o CMakeFiles\\main.dir\\src\\textrendering.cpp.obj -c C:\\Users\\biaso\\Desktop\\UFRGS\\semestre5\\fcg\\fcg-opengl\\src\\textrendering.cpp",
+  "file": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/src/textrendering.cpp",
+  "output": "CMakeFiles/main.dir/src/textrendering.cpp.obj"
+},
+{
+  "directory": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++11 -o CMakeFiles\\main.dir\\src\\tiny_obj_loader.cpp.obj -c C:\\Users\\biaso\\Desktop\\UFRGS\\semestre5\\fcg\\fcg-opengl\\src\\tiny_obj_loader.cpp",
+  "file": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/src/tiny_obj_loader.cpp",
+  "output": "CMakeFiles/main.dir/src/tiny_obj_loader.cpp.obj"
+},
+{
+  "directory": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++11 -o CMakeFiles\\main.dir\\src\\stb_image.cpp.obj -c C:\\Users\\biaso\\Desktop\\UFRGS\\semestre5\\fcg\\fcg-opengl\\src\\stb_image.cpp",
+  "file": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/src/stb_image.cpp",
+  "output": "CMakeFiles/main.dir/src/stb_image.cpp.obj"
+},
+{
+  "directory": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/build",
+  "command": "C:\\msys64\\mingw64\\bin\\gcc.exe  @CMakeFiles/main.dir/includes_C.rsp -g -o CMakeFiles\\main.dir\\src\\glad.c.obj -c C:\\Users\\biaso\\Desktop\\UFRGS\\semestre5\\fcg\\fcg-opengl\\src\\glad.c",
+  "file": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/src/glad.c",
+  "output": "CMakeFiles/main.dir/src/glad.c.obj"
+},
+{
+  "directory": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++11 -o CMakeFiles\\main.dir\\src\\callback.cpp.obj -c C:\\Users\\biaso\\Desktop\\UFRGS\\semestre5\\fcg\\fcg-opengl\\src\\callback.cpp",
+  "file": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/src/callback.cpp",
+  "output": "CMakeFiles/main.dir/src/callback.cpp.obj"
+},
+{
+  "directory": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++11 -o CMakeFiles\\main.dir\\src\\dejavufont.cpp.obj -c C:\\Users\\biaso\\Desktop\\UFRGS\\semestre5\\fcg\\fcg-opengl\\src\\dejavufont.cpp",
+  "file": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/src/dejavufont.cpp",
+  "output": "CMakeFiles/main.dir/src/dejavufont.cpp.obj"
+},
+{
+  "directory": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++11 -o CMakeFiles\\main.dir\\src\\globals.cpp.obj -c C:\\Users\\biaso\\Desktop\\UFRGS\\semestre5\\fcg\\fcg-opengl\\src\\globals.cpp",
+  "file": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/src/globals.cpp",
+  "output": "CMakeFiles/main.dir/src/globals.cpp.obj"
+},
+{
+  "directory": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++11 -o CMakeFiles\\main.dir\\src\\matrices.cpp.obj -c C:\\Users\\biaso\\Desktop\\UFRGS\\semestre5\\fcg\\fcg-opengl\\src\\matrices.cpp",
+  "file": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/src/matrices.cpp",
+  "output": "CMakeFiles/main.dir/src/matrices.cpp.obj"
+},
+{
+  "directory": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++11 -o CMakeFiles\\main.dir\\src\\objects.cpp.obj -c C:\\Users\\biaso\\Desktop\\UFRGS\\semestre5\\fcg\\fcg-opengl\\src\\objects.cpp",
+  "file": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/src/objects.cpp",
+  "output": "CMakeFiles/main.dir/src/objects.cpp.obj"
+},
+{
+  "directory": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++11 -o CMakeFiles\\main.dir\\src\\stackMatrix.cpp.obj -c C:\\Users\\biaso\\Desktop\\UFRGS\\semestre5\\fcg\\fcg-opengl\\src\\stackMatrix.cpp",
+  "file": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/src/stackMatrix.cpp",
+  "output": "CMakeFiles/main.dir/src/stackMatrix.cpp.obj"
+},
+{
+  "directory": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/build",
+  "command": "C:\\msys64\\mingw64\\bin\\g++.exe  @CMakeFiles/main.dir/includes_CXX.rsp -g -std=c++11 -o CMakeFiles\\main.dir\\src\\window.cpp.obj -c C:\\Users\\biaso\\Desktop\\UFRGS\\semestre5\\fcg\\fcg-opengl\\src\\window.cpp",
+  "file": "C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/src/window.cpp",
+  "output": "CMakeFiles/main.dir/src/window.cpp.obj"
+}
+]
