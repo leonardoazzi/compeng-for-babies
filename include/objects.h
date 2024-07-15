@@ -16,4 +16,5 @@ void LoadShader(const char* filename, GLuint shader_id); // Função utilizada p
 GLuint CreateGpuProgram(GLuint vertex_shader_id, GLuint fragment_shader_id); // Cria um programa de GPU
 void PrintObjModelInfo(ObjModel*); // Função para debugging
 void buildModel(const char* filename); // Função para carregar um modelo 3DF
+void reLoadShaders(); // Função para recarregar os shaders
 #endif // _OBJECTS_H

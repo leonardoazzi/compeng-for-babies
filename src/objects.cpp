@@ -261,6 +261,10 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureDisplay"), 5);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureDigit0"), 6);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureDigit1"), 7);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "TexturePlaneWire"), 8);
+
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "u_isInput1Digit0"), isInput1Digit0);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "u_isInput2Digit0"), isInput2Digit0);
     
     glUseProgram(0);
 }
@@ -672,4 +676,10 @@ void buildModel(const char* filename) {
     ObjModel planemodel(filename);
     ComputeNormals(&planemodel);
     BuildTrianglesAndAddToVirtualScene(&planemodel);
+}
+
+void reLoadShaders() {
+        LoadShadersFromFiles();
+        fprintf(stdout,"Shaders recarregados!\n");
+        fflush(stdout);
 }

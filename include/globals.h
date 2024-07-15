@@ -153,3 +153,7 @@ extern GLuint g_NumLoadedTextures;
 // que possamos calcular quanto que o mouse se movimentou entre dois instantes
 // de tempo. Utilizadas no callback CursorPosCallback() abaixo.
 extern double g_LastCursorPosX, g_LastCursorPosY;
+
+// Variáveis que mudam o dígito de cada display
+extern bool isInput1Digit0;
+extern bool isInput2Digit0;

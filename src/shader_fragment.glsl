@@ -20,13 +20,15 @@ uniform mat4 projection;
 
 // Identificador que define qual objeto está sendo desenhado no momento
 #define SPHERE 0
-#define LIGHTBULB  1
+#define LIGHTBULB_WIRE 1
 #define NOT  2
 #define AND  3
 #define WIRE  4
 #define DISPLAY 5
 #define TABLE 6
-#define DIGIT 7
+#define INPUT1_DIGIT 7
+#define INPUT2_DIGIT 8
+#define PLANE_WIRE 9
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -42,6 +44,10 @@ uniform sampler2D TextureWire;
 uniform sampler2D TextureDisplay;
 uniform sampler2D TextureDigit0;
 uniform sampler2D TextureDigit1;
+uniform sampler2D TexturePlaneWire;
+
+uniform bool u_isInput1Digit0;
+uniform bool u_isInput2Digit0;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec4 color;
@@ -115,9 +121,12 @@ void main()
         color.rgb = Kd;
         color.a = 1;
     }
-    else if ( object_id == LIGHTBULB )
+    else if ( object_id == LIGHTBULB_WIRE )
     {
-        Kd = texture(TextureLightbulbON, texcoords).rgb;
+        if (u_isInput1Digit0)
+            Kd = texture(TextureLightbulbOFF, texcoords).rgb;
+        else
+            Kd = texture(TextureLightbulbON, texcoords).rgb;
 
         color.rgb = Kd;
         color.a = 1;
@@ -141,9 +150,27 @@ void main()
         color.rgb = Kd;
         color.a = 1;
     }
-    else if (object_id == DIGIT)
+    else if (object_id == INPUT1_DIGIT)
     {
-        Kd = texture(TextureDigit1, texcoords).rgb;
+        if (u_isInput1Digit0)
+            Kd = texture(TextureDigit0, texcoords).rgb;
+        else
+            Kd = texture(TextureDigit1, texcoords).rgb;
+        color.rgb = Kd;
+        color.a = 1;
+    }
+    else if (object_id == INPUT2_DIGIT)
+    {
+        if (u_isInput2Digit0)
+            Kd = texture(TextureDigit0, texcoords).rgb;
+        else
+            Kd = texture(TextureDigit1, texcoords).rgb;
+        color.rgb = Kd;
+        color.a = 1;
+    }
+    else if (object_id == PLANE_WIRE)
+    {
+        Kd = texture(TexturePlaneWire, texcoords).rgb;
         color.rgb = Kd;
         color.a = 1;
     }

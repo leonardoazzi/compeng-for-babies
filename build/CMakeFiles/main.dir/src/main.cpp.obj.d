@@ -25,6 +25,9 @@ CMakeFiles/main.dir/src/main.cpp.obj: \
  C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.1.0/include/mm_malloc.h \
  C:/msys64/mingw64/include/errno.h \
  C:/msys64/mingw64/include/c++/14.1.0/bits/version.h \
+ C:/msys64/mingw64/include/c++/14.1.0/cfloat \
+ C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.1.0/include/float.h \
+ C:/msys64/mingw64/include/float.h \
  C:/msys64/mingw64/include/c++/14.1.0/map \
  C:/msys64/mingw64/include/c++/14.1.0/bits/stl_tree.h \
  C:/msys64/mingw64/include/c++/14.1.0/bits/stl_algobase.h \
