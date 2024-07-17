@@ -18,7 +18,6 @@
 #include <cmath>
 // #include <cstdio>
 // #include <cstdlib>
-#include <cfloat>
 
 // Headers abaixo são específicos de C++
 #include <map>
@@ -70,6 +69,10 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/display/textures/digit0.jpg"); // TextureDigit0
     LoadTextureImage("../../data/display/textures/digit1.jpg"); // TextureDigit1
     LoadTextureImage("../../data/circuits/wire.jpg"); // TexturePlaneWire
+    LoadTextureImage("../../data/circuits/not.jpg"); // TexturePlaneNot
+    LoadTextureImage("../../data/circuits/metal_grate_rusty_diff_4k.jpg"); // TextureBlocks
+    LoadTextureImage("../../data/circuits/leather_red_03_coll1_4k.png"); // TextureSphere
+    LoadTextureImage("../../data/circuits/and.jpg"); // TexturePlaneAnd
 
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     buildModel("../../data/sphere.obj");
@@ -79,6 +82,8 @@ int main(int argc, char* argv[])
     buildModel("../../data/display/cube.obj");
     buildModel("../../data/plane.obj");
     buildModel("../../data/table/chinese_console_table_4k.obj");
+    buildModel("../../data/not/not.obj");
+    buildModel("../../data/and/and.obj");
 
     if ( argc > 1 )
     {
@@ -185,6 +190,10 @@ int main(int argc, char* argv[])
         #define INPUT1_DIGIT 7
         #define INPUT2_DIGIT 8
         #define PLANE_WIRE 9
+        #define LIGHTBULB_NOT 10
+        #define PLANE_NOT 11
+        #define LIGHTBULB_AND 12
+        #define PLANE_AND 13
 
         #define PLANE_WIDTH 0.2f
         #define PLANE_HEIGHT 0.145f
@@ -269,6 +278,76 @@ int main(int argc, char* argv[])
                     // posição do display
                     model *= Matrix_Translate(-CIRCUIT_WIDTH, 0.0f, 0.0f);
 
+                        PushMatrix(model);
+                            // Desenhamos o modelo do cubo do display
+                            model *= Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, DISPLAY);
+                            DrawVirtualObject("Cube");
+                        PopMatrix(model);
+
+                        PushMatrix(model);
+                            // // Desenhamos o modelo do display do dígito
+                            model *= Matrix_Translate(0.0f, DISPLAY_WIDTH + 0.0005, 0.0f) 
+                                * Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
+                            DrawVirtualObject("the_plane");
+                        PopMatrix(model);
+
+                PopMatrix(model);
+
+            PopMatrix(model);
+
+            // 2 - NOT
+
+            // Desenhamos o circuito NOT
+            PushMatrix(model);
+
+                model *= Matrix_Translate(- (3 / NUM_CIRCUITS) * tableWidth - 0.15f, 0.0f, 0.0f);
+
+                // Plano com o circuito NOT
+                PushMatrix(model);
+                    model *= Matrix_Scale(PLANE_WIDTH, 0.0f, PLANE_HEIGHT);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, PLANE_NOT);
+                    DrawVirtualObject("the_plane");
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // desenhamos a lâmpada
+                    model *= Matrix_Translate(CIRCUIT_WIDTH, 0.01f, 0.0f);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, LIGHTBULB_NOT);
+                    DrawVirtualObject("lightbulb_01");
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // Desenhamos a primeira metade do modelo do fio
+                    model *= Matrix_Translate(-(CIRCUIT_WIDTH - 0.05f), 0.01f,0.0f)
+                        * Matrix_Rotate_X(M_PI/2.0f)
+                        * Matrix_Rotate_Z(M_PI/2.0f)
+                        * Matrix_Scale(0.01f, CIRCUIT_WIDTH / 4.0, 0.01f);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, WIRE);
+                    DrawVirtualObject("Cylinder");
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // Desenhamos a segunda metade do modelo do fio
+                    model *= Matrix_Translate(CIRCUIT_WIDTH - 0.05f,0.01f,0.0f)
+                        * Matrix_Rotate_X(M_PI/2.0f)
+                        * Matrix_Rotate_Z(M_PI/2.0f)
+                        * Matrix_Scale(0.01f, CIRCUIT_WIDTH / 4.0f, 0.01f);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, WIRE);
+                    DrawVirtualObject("Cylinder");
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // posição do display
+                    model *= Matrix_Translate(-CIRCUIT_WIDTH, 0.0f, 0.0f);
+
                     PushMatrix(model);
                         // Desenhamos o modelo do cubo do display
                         model *= Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
@@ -286,8 +365,183 @@ int main(int argc, char* argv[])
                         DrawVirtualObject("the_plane");
                     PopMatrix(model);
 
+                    PushMatrix(model);
+                        // Desenhamos o modelo do bloco NOT
+                        model *= Matrix_Translate(CIRCUIT_WIDTH / 2.0f + 0.01f, 0.0f, 0.0f)
+                            * Matrix_Scale(CIRCUIT_WIDTH / 4.0f + 0.025f, CIRCUIT_WIDTH / 4.0f, CIRCUIT_WIDTH / 4.0f)
+                            * Matrix_Rotate_Y(-M_PI/4.0f);
+                        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                        glUniform1i(g_object_id_uniform, NOT);
+                        DrawVirtualObject("Not");
+                    PopMatrix(model);
+
+                    PushMatrix(model);
+                        // Desenhamos o modelo da esfera do bloco NOT
+                        model *= Matrix_Translate(CIRCUIT_WIDTH / 2.0f + 0.01f + CIRCUIT_WIDTH / 4.0f + 0.025f + CIRCUIT_WIDTH / 6.0f + 0.02f, 0.025f, 0.0f)
+                            * Matrix_Scale(CIRCUIT_WIDTH / 6.0f, CIRCUIT_WIDTH / 6.0f,CIRCUIT_WIDTH / 6.0f)
+                            * Matrix_Rotate_Y(-M_PI/4.0f);
+                        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                        glUniform1i(g_object_id_uniform, SPHERE);
+                        DrawVirtualObject("the_sphere");
+                    PopMatrix(model);
+
                 PopMatrix(model);
             PopMatrix(model);
+
+            // 3 - AND
+
+            // Desenhamos o circuito AND
+            PushMatrix(model);
+
+                model *= Matrix_Translate( tableWidth / NUM_CIRCUITS - 0.15f, 0.0f, 0.0f);
+
+                // Plano com o circuito AND
+                PushMatrix(model);
+                    model *= Matrix_Scale(PLANE_WIDTH, 50.0f, PLANE_HEIGHT);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, PLANE_AND);
+                    DrawVirtualObject("the_plane");
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // desenhamos a lâmpada
+                    model *= Matrix_Translate(CIRCUIT_WIDTH, 0.01f, 0.0f);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, LIGHTBULB_AND);
+                    DrawVirtualObject("lightbulb_01");
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // Desenhamos a primeira metade do modelo do fio
+                    model *= Matrix_Translate(-(CIRCUIT_WIDTH - 0.05f), 0.01f,0.0f)
+                        * Matrix_Rotate_X(M_PI/2.0f)
+                        * Matrix_Rotate_Z(M_PI/2.0f)
+                        * Matrix_Scale(0.01f, CIRCUIT_WIDTH / 4.0 + 0.005f, 0.01f);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, WIRE);
+                    DrawVirtualObject("Cylinder");
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // Desenhamos a segunda metade do modelo do fio
+                    model *= Matrix_Translate(CIRCUIT_WIDTH - 0.05f,0.01f,0.0f)
+                        * Matrix_Rotate_X(M_PI/2.0f)
+                        * Matrix_Rotate_Z(M_PI/2.0f)
+                        * Matrix_Scale(0.01f, CIRCUIT_WIDTH / 4.0f, 0.01f);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, WIRE);
+                    DrawVirtualObject("Cylinder");
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // Desenhamos a o fio vertical que liga os dos displays ao circuito
+                    model *= Matrix_Translate(-CIRCUIT_WIDTH, 0.01f, 0.0f)
+                        * Matrix_Rotate_Y(M_PI/2.0f)
+                        * Matrix_Rotate_Z(M_PI/2.0f)
+                        * Matrix_Scale(0.01f, PLANE_HEIGHT - (2 * DISPLAY_HEIGHT), 0.01f);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, WIRE);
+                    DrawVirtualObject("Cylinder");
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // posição do display
+                    model *= Matrix_Translate(-CIRCUIT_WIDTH, 0.0f, 0.0f);
+
+                    PushMatrix(model);
+                        // Posição do display 1
+                        model *= Matrix_Translate(0.0f, 0.0f, - (PLANE_HEIGHT / 2.0f));
+
+                        PushMatrix(model);
+                            // Desenhamos o modelo do cubo do display
+                            model *= Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, DISPLAY);
+                            DrawVirtualObject("Cube");
+                        PopMatrix(model);
+
+                        PushMatrix(model);
+                            // // Desenhamos o modelo do display do dígito
+                            model *= Matrix_Translate(0.0f, DISPLAY_WIDTH + 0.0005, 0.0f) 
+                                * Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
+                            DrawVirtualObject("the_plane");
+                        PopMatrix(model);
+
+                        PushMatrix(model);
+                            // Desenhamos o modelo do cubo do display
+                            model *= Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, DISPLAY);
+                            DrawVirtualObject("Cube");
+                        PopMatrix(model);
+
+                        PushMatrix(model);
+                            // // Desenhamos o modelo do display do dígito
+                            model *= Matrix_Translate(0.0f, DISPLAY_WIDTH + 0.0005, 0.0f) 
+                                * Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
+                            DrawVirtualObject("the_plane");
+                        PopMatrix(model);
+                        
+                    PopMatrix(model);
+
+                    PushMatrix(model);
+                        // Posição do display 2
+                        model *= Matrix_Translate(0.0f, 0.0f, PLANE_HEIGHT / 2.0f);
+
+                        PushMatrix(model);
+                            // Desenhamos o modelo do cubo do display
+                            model *= Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, DISPLAY);
+                            DrawVirtualObject("Cube");
+                        PopMatrix(model);
+
+                        PushMatrix(model);
+                            // // Desenhamos o modelo do display do dígito
+                            model *= Matrix_Translate(0.0f, DISPLAY_WIDTH + 0.0005, 0.0f) 
+                                * Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, INPUT2_DIGIT);
+                            DrawVirtualObject("the_plane");
+                        PopMatrix(model);
+
+                        PushMatrix(model);
+                            // Desenhamos o modelo do cubo do display
+                            model *= Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, DISPLAY);
+                            DrawVirtualObject("Cube");
+                        PopMatrix(model);
+
+                        PushMatrix(model);
+                            // // Desenhamos o modelo do display do dígito
+                            model *= Matrix_Translate(0.0f, DISPLAY_WIDTH + 0.0005, 0.0f) 
+                                * Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
+                            DrawVirtualObject("the_plane");
+                        PopMatrix(model);
+                        
+                    PopMatrix(model);                
+                
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // Desenhamos o modelo do bloco AND
+                    model *= Matrix_Translate(0.0f, 0.0f, 0.0f)
+                        * Matrix_Scale(CIRCUIT_WIDTH / 4.0f + 0.01f, CIRCUIT_WIDTH / 4.0f + 0.01f, CIRCUIT_WIDTH / 4.0f + 0.01f)
+                        * Matrix_Rotate_Y(-M_PI/2.0f);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, AND);
+                    DrawVirtualObject("and");
+                PopMatrix(model);
+
+            PopMatrix(model);
+
         PopMatrix(model);
 
 

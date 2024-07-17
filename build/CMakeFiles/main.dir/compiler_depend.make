@@ -1570,7 +1570,6 @@ CMakeFiles/main.dir/src/main.cpp.obj: C:/Users/biaso/Desktop/UFRGS/semestre5/fcg
   C:/msys64/mingw64/include/c++/14.1.0/cassert \
   C:/msys64/mingw64/include/c++/14.1.0/cctype \
   C:/msys64/mingw64/include/c++/14.1.0/cerrno \
-  C:/msys64/mingw64/include/c++/14.1.0/cfloat \
   C:/msys64/mingw64/include/c++/14.1.0/clocale \
   C:/msys64/mingw64/include/c++/14.1.0/cmath \
   C:/msys64/mingw64/include/c++/14.1.0/cstddef \
@@ -1638,7 +1637,6 @@ CMakeFiles/main.dir/src/main.cpp.obj: C:/Users/biaso/Desktop/UFRGS/semestre5/fcg
   C:/msys64/mingw64/include/excpt.h \
   C:/msys64/mingw64/include/fibersapi.h \
   C:/msys64/mingw64/include/fileapi.h \
-  C:/msys64/mingw64/include/float.h \
   C:/msys64/mingw64/include/fltwinerror.h \
   C:/msys64/mingw64/include/guiddef.h \
   C:/msys64/mingw64/include/handleapi.h \
@@ -1784,7 +1782,6 @@ CMakeFiles/main.dir/src/main.cpp.obj: C:/Users/biaso/Desktop/UFRGS/semestre5/fcg
   C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.1.0/include/emmintrin.h \
   C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.1.0/include/enqcmdintrin.h \
   C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.1.0/include/f16cintrin.h \
-  C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.1.0/include/float.h \
   C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.1.0/include/fma4intrin.h \
   C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.1.0/include/fmaintrin.h \
   C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.1.0/include/fxsrintrin.h \
@@ -4412,8 +4409,6 @@ C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.1.0/include/xsaveoptintrin.h:
 
 C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/include/glm/ext/matrix_clip_space.hpp:
 
-C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.1.0/include/float.h:
-
 C:/msys64/mingw64/include/stringapiset.h:
 
 C:/msys64/mingw64/lib/gcc/x86_64-w64-mingw32/14.1.0/include/prfchiintrin.h:
@@ -5483,10 +5478,6 @@ C:/msys64/mingw64/include/c++/14.1.0/bits/stl_heap.h:
 C:/msys64/mingw64/include/c++/14.1.0/bits/stl_tempbuf.h:
 
 C:/msys64/mingw64/include/c++/14.1.0/bits/uniform_int_dist.h:
-
-C:/msys64/mingw64/include/c++/14.1.0/cfloat:
-
-C:/msys64/mingw64/include/float.h:
 
 C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/src/matrices.cpp:
 
