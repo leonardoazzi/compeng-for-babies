@@ -29,6 +29,10 @@ uniform mat4 projection;
 #define INPUT1_DIGIT 7
 #define INPUT2_DIGIT 8
 #define PLANE_WIRE 9
+#define LIGHTBULB_NOT 10
+#define PLANE_NOT 11
+#define LIGHTBULB_AND 12
+#define PLANE_AND 13
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -45,6 +49,10 @@ uniform sampler2D TextureDisplay;
 uniform sampler2D TextureDigit0;
 uniform sampler2D TextureDigit1;
 uniform sampler2D TexturePlaneWire;
+uniform sampler2D TexturePlaneNot;
+uniform sampler2D TextureBlocks;
+uniform sampler2D TextureSphere;
+uniform sampler2D TexturePlaneAnd;
 
 uniform bool u_isInput1Digit0;
 uniform bool u_isInput2Digit0;
@@ -117,7 +125,7 @@ void main()
         V = (phi + M_PI / 2) / M_PI;
 
         // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
-        Kd = texture(TextureImage0, vec2(U,V)).rgb;
+        Kd = texture(TextureSphere, vec2(U,V)).rgb;
         color.rgb = Kd;
         color.a = 1;
     }
@@ -127,6 +135,26 @@ void main()
             Kd = texture(TextureLightbulbOFF, texcoords).rgb;
         else
             Kd = texture(TextureLightbulbON, texcoords).rgb;
+
+        color.rgb = Kd;
+        color.a = 1;
+    }
+    else if ( object_id == LIGHTBULB_NOT )
+    {
+        if (u_isInput1Digit0)
+            Kd = texture(TextureLightbulbON, texcoords).rgb;
+        else
+            Kd = texture(TextureLightbulbOFF, texcoords).rgb;
+
+        color.rgb = Kd;
+        color.a = 1;
+    }
+    else if ( object_id == LIGHTBULB_AND )
+    {
+        if (!u_isInput1Digit0 && !u_isInput2Digit0)
+            Kd = texture(TextureLightbulbON, texcoords).rgb;
+        else
+            Kd = texture(TextureLightbulbOFF, texcoords).rgb;
 
         color.rgb = Kd;
         color.a = 1;
@@ -171,6 +199,39 @@ void main()
     else if (object_id == PLANE_WIRE)
     {
         Kd = texture(TexturePlaneWire, texcoords).rgb;
+        color.rgb = Kd;
+        color.a = 1;
+    }
+    else if (object_id == PLANE_NOT)
+    {
+        Kd = texture(TexturePlaneNot, texcoords).rgb;
+        color.rgb = Kd;
+        color.a = 1;
+    }
+    else if (object_id == PLANE_AND)
+    {
+        Kd = texture(TexturePlaneAnd, texcoords).rgb;
+        color.rgb = Kd;
+        color.a = 1;
+    }
+    else if (object_id == NOT || object_id == AND)
+    {
+        // Projeção cilíndrica
+        vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
+        float height = bbox_max.y - bbox_min.y;
+
+        // ponto q no eixo central com igual altura ao ponto p position_model
+        vec4 q = vec4(bbox_center.x, position_model.y, bbox_center.z, 1.0f);
+
+        vec4 position_cylinder = q + normalize(position_model - q);
+
+        float theta = atan(position_cylinder.z - bbox_center.z, position_cylinder.x - bbox_center.x);
+        float h = position_cylinder.y - bbox_min.y;
+
+        U = (theta + M_PI) / (2.0 * M_PI);
+        V = h / height;
+
+        Kd = texture(TextureBlocks, vec2(U,V)).rgb;
         color.rgb = Kd;
         color.a = 1;
     }
