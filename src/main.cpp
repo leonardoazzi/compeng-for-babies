@@ -102,6 +102,25 @@ int main(int argc, char* argv[])
     glCullFace(GL_BACK);
     glFrontFace(GL_CCW);
 
+    // Definição de propriedades da câmera
+    float speed = 2.0f; // Velocidade da câmera
+    float prev_time = (float)glfwGetTime();
+
+    // Calcula as coordenadas iniciais da free camera, que são fixas para servir 
+    // de 'ancoragem' ao vetor view.
+    float r_fixed = g_CameraDistance;
+    float x_fixed = r_fixed*cos(g_CameraPhi)*sin(g_CameraTheta);
+    float y_fixed = r_fixed*sin(g_CameraPhi);
+    float z_fixed = r_fixed*cos(g_CameraPhi)*cos(g_CameraTheta);
+
+    // Inicializa os parâmetros da câmera
+    glm::vec4 camera_up_vector   = glm::vec4(0.0f,1.0f,0.0f,0.0f); // Vetor "up" fixado para apontar para o "céu" (eito Y global)
+    glm::vec4 camera_position_c  = glm::vec4(x_fixed,y_fixed,z_fixed,1.0f); // Ponto "c", centro da câmera
+
+    // Inicializa o vetor que será somado ao ponto c, deslocando-o de acordo com o
+    // movimento no modo câmera livre
+    glm::vec4 camera_movement = glm::vec4(0.0f,0.0f,0.0f,0.0f);
+
     // Ficamos em um loop infinito, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
     {
@@ -127,17 +146,30 @@ int main(int argc, char* argv[])
         // variáveis g_CameraDistance, g_CameraPhi, e g_CameraTheta são
         // controladas pelo mouse do usuário. Veja as funções CursorPosCallback()
         // e ScrollCallback().
+        // Aqui, os parâmetros irão atualizar a orientação do vetor view em relação ao
+        // ponto c 'ancorado'.
         float r = g_CameraDistance;
         float y = r*sin(g_CameraPhi);
         float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
         float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
 
-        // Abaixo definimos as varáveis que efetivamente definem a câmera virtual.
-        // Veja slides 195-227 e 229-234 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
-        glm::vec4 camera_position_c  = glm::vec4(x,y,z,1.0f); // Ponto "c", centro da câmera
+        // Câmera look-at
+        camera_position_c  = glm::vec4(x,y,z,1.0f); // Ponto "c", centro da câmera
         glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
         glm::vec4 camera_view_vector = camera_lookat_l - camera_position_c; // Vetor "view", sentido para onde a câmera está virada
-        glm::vec4 camera_up_vector   = glm::vec4(0.0f,1.0f,0.0f,0.0f); // Vetor "up" fixado para apontar para o "céu" (eito Y global)
+
+        // Câmera livre
+        if (freeCamera == true){
+            camera_position_c  = glm::vec4(x_fixed,y_fixed,z_fixed,1.0f) + camera_movement; // Ponto "c", centro da câmera
+            camera_view_vector = glm::vec4(-x,-y,-z,0.0f); // Vetor "view", sentido para onde a câmera está virada
+        };
+
+        // Especificando o sistema de coordenads da câmera. Será utilizado como referência
+        // para atualizar a posição da câmera no espaço, modificando a posição do ponto c
+        // através do input do teclado.
+        glm::vec4 camera_w = -camera_view_vector / norm(camera_view_vector);
+        glm::vec4 camera_u_unnormed = crossproduct(camera_up_vector, camera_w);
+        glm::vec4 camera_u = camera_u_unnormed / norm(camera_u_unnormed);
 
         // Computamos a matriz "View" utilizando os parâmetros da câmera para
         // definir o sistema de coordenadas da câmera.  Veja slides 2-14, 184-190 e 236-242 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
@@ -564,6 +596,29 @@ int main(int argc, char* argv[])
         // Imprimimos na tela informação sobre o número de quadros renderizados
         // por segundo (frames per second).
         TextRendering_ShowFramesPerSecond(window);
+
+        // Cálculo de delta logo antes do glfwSwapBuffers para tentar minimizar o atraso da geração de imagens
+        // Atualiza delta de tempo
+        float current_time = (float)glfwGetTime();
+        float delta_t = current_time - prev_time;
+        prev_time = current_time;
+
+        // Realiza movimentação de objetos
+        if (W_key_pressed)
+            // Movimenta câmera para frente
+            camera_movement += -camera_w * speed * delta_t;
+
+        if (A_key_pressed)
+            // Movimenta câmera para esquerda
+            camera_movement += -camera_u * speed * delta_t;
+
+        if (S_key_pressed)
+            // Movimenta câmera para trás
+            camera_movement += camera_w * speed * delta_t;
+
+        if (D_key_pressed)
+            // Movimenta câmera para direita
+            camera_movement += camera_u * speed * delta_t;
 
         // O framebuffer onde OpenGL executa as operações de renderização não
         // é o mesmo que está sendo mostrado para o usuário, caso contrário

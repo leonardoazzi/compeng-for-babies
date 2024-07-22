@@ -157,3 +157,13 @@ extern double g_LastCursorPosX, g_LastCursorPosY;
 // Variáveis que mudam o dígito de cada display
 extern bool isInput1Digit0;
 extern bool isInput2Digit0;
+
+// Variáveis de estado para as teclas de movimentação da câmera
+extern bool W_key_pressed;
+extern bool A_key_pressed;
+extern bool S_key_pressed;
+extern bool D_key_pressed;
+
+// Variável para modificar o tipo de câmera (look-at/free camera)
+extern bool freeCamera;
+extern bool lookatCamera;
