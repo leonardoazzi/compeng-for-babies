@@ -3,6 +3,14 @@
 bool isInput1Digit0 = true;
 bool isInput2Digit0 = true;
 
+// Variáveis de estado para as teclas de movimentação da câmera
+bool W_key_pressed = false;
+bool A_key_pressed = false;
+bool S_key_pressed = false;
+bool D_key_pressed = false;
+bool freeCamera = false;
+bool lookatCamera = true; // câmera padrão
+
 // Definição da função que será chamada sempre que a janela do sistema
 // operacional for redimensionada, por consequência alterando o tamanho do
 // "framebuffer" (região de memória onde são armazenados os pixels da imagem).
@@ -116,6 +124,77 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     if (key == GLFW_KEY_R && action == GLFW_PRESS)
     {
         reLoadShaders();
+    }
+
+    // Movimentação da câmera livre
+    if (key == GLFW_KEY_W && freeCamera)
+    {
+        if (action == GLFW_PRESS){
+            W_key_pressed = true;
+        }
+
+        else if (action == GLFW_RELEASE){
+            W_key_pressed = false;
+        }
+
+        else if (action == GLFW_REPEAT){
+            // tecla continua em estado GLFW_PRESS
+        }
+    }
+    if (key == GLFW_KEY_S && freeCamera)
+    {
+        if (action == GLFW_PRESS){
+            S_key_pressed = true;
+        }
+
+        else if (action == GLFW_RELEASE){
+            S_key_pressed = false;
+        }
+
+        else if (action == GLFW_REPEAT){
+            // tecla continua em estado GLFW_PRESS
+        }
+    }
+
+    if (key == GLFW_KEY_A && freeCamera)
+    {
+        if (action == GLFW_PRESS){
+            A_key_pressed = true;
+        }
+
+        else if (action == GLFW_RELEASE){
+            A_key_pressed = false;
+        }
+
+        else if (action == GLFW_REPEAT){
+            // tecla continua em estado GLFW_PRESS
+        }
+    }
+
+    if (key == GLFW_KEY_D && freeCamera)
+    {
+        if (action == GLFW_PRESS){
+            D_key_pressed = true;
+        }
+
+        else if (action == GLFW_RELEASE){
+            D_key_pressed = false;
+        }
+
+        else if (action == GLFW_REPEAT){
+            // tecla continua em estado GLFW_PRESS
+        }
+    }
+
+    // Habilita e desabilita a câmera livre. A câmera padrão é look-at
+    if (key == GLFW_KEY_C && action == GLFW_PRESS)
+    {
+        freeCamera = !freeCamera;
+
+        // Reseta os ângulos da câmera e sua distância para a origem
+        g_CameraTheta = 0.0f; // Ângulo no plano ZX em relação ao eixo Z
+        g_CameraPhi = 0.0f;   // Ângulo em relação ao eixo Y
+        g_CameraDistance = 3.5f; // Distância da câmera para a origem
     }
 }
 
