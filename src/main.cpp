@@ -18,6 +18,7 @@
 #include <cmath>
 // #include <cstdio>
 // #include <cstdlib>
+#include <iostream>
 
 // Headers abaixo são específicos de C++
 #include <map>
@@ -34,6 +35,60 @@
 #include "window.h"
 
 #define M_PI 3.14159265358979323846
+
+/**
+ * @brief Struct que representa uma axis-aligned bounding box (AABB).
+ * 
+ * Uma AABB (Axis-Aligned Bounding Box) é utilizada para representar uma caixa delimitadora
+ * que possui seus lados paralelos aos eixos do sistema de coordenadas. Ela é definida pelos pontos
+ * mínimo e máximo que a delimitam.
+ */
+struct AABB {
+    glm::vec3 min;
+    glm::vec3 max;
+};
+
+/**
+ * @brief Verifica se dois cubos representados por AABBs se intersectam nos eixos x, y e z.
+ * Adaptado de https://gamedev.stackexchange.com/questions/96060/collision-detection-in-opengl
+ *
+ * @param a O primeiro cubo AABB.
+ * @param b O segundo cubo AABB.
+ * @return True se os cubos AABB se intersectam, false caso contrário.
+ */
+bool CubeIntersectsCube(AABB a, AABB b){
+    int intersectedAxes = 0;
+
+    if (a.min.x <= b.max.x && a.max.x >= b.min.x) intersectedAxes++;
+    if (a.min.y <= b.max.y && a.max.y >= b.min.y) intersectedAxes++;
+    if (a.min.z <= b.max.z && a.max.z >= b.min.z) intersectedAxes++;
+
+    std::cout << "Eixos com intersecção: " << intersectedAxes << std::endl;
+
+    return intersectedAxes == 3;
+}
+
+/**
+ * @brief Calcula o axis-aligned bounding box (AABB) para um objeto da cena em coordenadas de mundo.
+ * 
+ * @param obj O objeto da cena, que contém em sua struct uma AABB em coordenadas de modelo.
+ * @param model A matriz modelo que representa as transformações geométricas necessárias para o objeto estar em coordenadas de mundo.
+ * @return A AABB do objeto em coordenadas de mundo.
+ */
+AABB GetWorldAABB(SceneObject obj, glm::mat4 model){
+    // Dada uma matriz model, transforma as coordenadas locais da AABB do objeto para coordenadas de mundo.
+    glm::vec4 min = model * glm::vec4(obj.bbox_min.x, obj.bbox_min.y, obj.bbox_min.z, 1.0f);
+    glm::vec4 max = model * glm::vec4(obj.bbox_max.x, obj.bbox_max.y, obj.bbox_max.z, 1.0f);
+
+    // @DEBUG
+    // std::cout << "BBox Local Min: " << bbox.min.x << " " << bbox.min.y << " " << bbox.min.z << std::endl;
+    // std::cout << "BBox Local Max: " << bbox.max.x << " " << bbox.max.y << " " << bbox.max.z << std::endl;
+    // std::cout << "BBox World Min: " << min.x << " " << min.y << " " << min.z << std::endl;
+    // std::cout << "BBox World Max: " << max.x << " " << max.y << " " << max.z << std::endl;
+
+    // Retorna a bounding box em coordenadas de  mundo
+    return AABB{min, max}; 
+}
 
 int main(int argc, char* argv[])
 {
@@ -284,7 +339,9 @@ int main(int argc, char* argv[])
                     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                     glUniform1i(g_object_id_uniform, PLANE_WIRE);
                     DrawVirtualObject("the_plane");
-                    
+
+                    AABB wirePlaneBbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
+
                 PopMatrix(model);
 
                 PushMatrix(model);
@@ -293,6 +350,9 @@ int main(int argc, char* argv[])
                     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                     glUniform1i(g_object_id_uniform, LIGHTBULB_WIRE);
                     DrawVirtualObject("lightbulb_01");
+
+                    AABB wireBulbBbox = GetWorldAABB(g_VirtualScene["lightbulb_01"], model);
+
                 PopMatrix(model);
 
                 PushMatrix(model);
@@ -343,6 +403,7 @@ int main(int argc, char* argv[])
                     model *= Matrix_Scale(PLANE_WIDTH, 0.0f, PLANE_HEIGHT);
                     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                     glUniform1i(g_object_id_uniform, PLANE_NOT);
+
                     DrawVirtualObject("the_plane");
                 PopMatrix(model);
 
@@ -441,6 +502,9 @@ int main(int argc, char* argv[])
                     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                     glUniform1i(g_object_id_uniform, LIGHTBULB_AND);
                     DrawVirtualObject("lightbulb_01");
+
+                    AABB andBulbBbox = GetWorldAABB(g_VirtualScene["lightbulb_01"], model);
+
                 PopMatrix(model);
 
                 PushMatrix(model);
@@ -576,14 +640,25 @@ int main(int argc, char* argv[])
 
         PopMatrix(model);
 
+        // ================================================================
+        // Testes de interseção entre objetos
+        // @TODO: os else if serão refatorados!
+        // ================================================================
+        if (CubeIntersectsCube(wirePlaneBbox,wireBulbBbox)){
+            std::cout << "Plano de Wire e Lâmpada do Wire intersectam" << std::endl;
+        } 
+        else if (CubeIntersectsCube(wirePlaneBbox,andBulbBbox)){
+            std::cout << "Plano de Wire e Lâmpada do AND intersectam" << std::endl;
+        }
+
 
         glUniformMatrix4fv(g_view_uniform, 1, GL_FALSE, glm::value_ptr(view));
         glUniformMatrix4fv(g_projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
 
         // Desenhamos o plano do chão
-        // model = Matrix_Translate(0.0f,-1.1f,0.0f) * Matrix_Scale(100.0f,100.0f,100.0f);
+        // model = Matrix_Translate(0.0f,-1.1f,0.0f) * Matrix_Scale(1.0f,1.0f,1.0f);
         // glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(g_object_id_uniform, PLANE);
+        // glUniform1i(g_object_id_uniform, PLANE_AND);
         // DrawVirtualObject("the_plane");
 
         // Imprimimos na tela os ângulos de Euler que controlam a rotação do
