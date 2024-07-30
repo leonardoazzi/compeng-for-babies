@@ -182,7 +182,3 @@ extern bool D_key_pressed;
 // Variável para modificar o tipo de câmera (look-at/free camera)
 extern bool freeCamera;
 extern bool lookatCamera;
-
-// Matriz de projeção
-extern glm::mat4 g_ProjectionMatrix;
-extern glm::mat4 g_ViewMatrix;

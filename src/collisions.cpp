@@ -94,7 +94,7 @@ AABB GetWorldAABB(SceneObject obj, glm::mat4 model){
  * da câmera e, por fim, para o sistema de coordenadas do mundo.. O vetor resultante é 
  * normalizado.
  */
-glm::vec3 MouseRayCasting(){
+glm::vec3 MouseRayCasting(glm::mat4 projectionMatrix, glm::mat4 viewMatrix){
     // Coordenadas do mouse em NDC
     float x = (2.0f * g_LastCursorPosX) / g_ScreenWidth - 1.0f; 
     float y = 1.0f - (2.0f * g_LastCursorPosY) / g_ScreenHeight;
@@ -105,11 +105,11 @@ glm::vec3 MouseRayCasting(){
     glm::vec4 ray_clip = glm::vec4(ray_nds.x, ray_nds.y, -1.0, 1.0);
 
     // Coordenadas do mouse no sistema da câmera
-    glm::vec4 ray_camera = glm::inverse(g_ProjectionMatrix) * ray_clip;
+    glm::vec4 ray_camera = glm::inverse(projectionMatrix) * ray_clip;
     ray_camera = glm::vec4(ray_camera.x, ray_camera.y, -1.0, 0.0); // Desconsidera os componentes z,w
 
     // Normaliza o vetor de coordenadas do mouse
-    glm::vec3 ray_world = glm::vec3(glm::inverse(g_ViewMatrix) * ray_camera);
+    glm::vec3 ray_world = glm::vec3(glm::inverse(viewMatrix) * ray_camera);
     ray_world = glm::normalize(ray_world);
 
     // @DEBUG

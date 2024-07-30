@@ -176,7 +176,7 @@ int main(int argc, char* argv[])
 
         // Computamos a matriz "View" utilizando os parâmetros da câmera para
         // definir o sistema de coordenadas da câmera.  Veja slides 2-14, 184-190 e 236-242 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
-        g_ViewMatrix = Matrix_Camera_View(camera_position_c, camera_view_vector, camera_up_vector);
+        glm::mat4 viewMatrix = Matrix_Camera_View(camera_position_c, camera_view_vector, camera_up_vector);
 
         // Note que, no sistema de coordenadas da câmera, os planos near e far
         // estão no sentido negativo! Veja slides 176-204 do documento Aula_09_Projecoes.pdf.
@@ -184,12 +184,14 @@ int main(int argc, char* argv[])
         float farplane  = -10.0f; // Posição do "far plane"
 
         // Agora computamos a matriz de Projeção.
+        glm::mat4 projectionMatrix;
+
         if (g_UsePerspectiveProjection)
         {
             // Projeção Perspectiva.
             // Para definição do field of view (FOV), veja slides 205-215 do documento Aula_09_Projecoes.pdf.
             float field_of_view = 3.141592 / 3.0f;
-            g_ProjectionMatrix = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
+            projectionMatrix = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
         }
         else
         {
@@ -202,7 +204,7 @@ int main(int argc, char* argv[])
             float b = -t;
             float r = t*g_ScreenRatio;
             float l = -r;
-            g_ProjectionMatrix = Matrix_Orthographic(l, r, b, t, nearplane, farplane);
+            projectionMatrix = Matrix_Orthographic(l, r, b, t, nearplane, farplane);
         }
 
         glm::mat4 model = Matrix_Identity(); // Transformação identidade de modelagem
@@ -210,8 +212,8 @@ int main(int argc, char* argv[])
         // Enviamos as matrizes "view" e "projection" para a placa de vídeo
         // (GPU). Veja o arquivo "shader_vertex.glsl", onde estas são
         // efetivamente aplicadas em todos os pontos.
-        glUniformMatrix4fv(g_view_uniform       , 1 , GL_FALSE , glm::value_ptr(g_ViewMatrix));
-        glUniformMatrix4fv(g_projection_uniform , 1 , GL_FALSE , glm::value_ptr(g_ProjectionMatrix));
+        glUniformMatrix4fv(g_view_uniform       , 1 , GL_FALSE , glm::value_ptr(viewMatrix));
+        glUniformMatrix4fv(g_projection_uniform , 1 , GL_FALSE , glm::value_ptr(projectionMatrix));
 
         #define SPHERE 0
         #define LIGHTBULB_WIRE 1
@@ -597,7 +599,7 @@ int main(int argc, char* argv[])
         // @TODO: os else if serão refatorados!
         // ================================================================
         // Projeta um ray casting em coord. do mundo a partir das coord. do mouse
-        glm::vec3 mousePoint = MouseRayCasting();
+        glm::vec3 mousePoint = MouseRayCasting(projectionMatrix, viewMatrix);
         glm::vec3 rayVec = glm::normalize(glm::vec4(mousePoint, 1.0f));
 
         std::cout << "Mouse point: " << mousePoint.x << " " << mousePoint.y << " " << mousePoint.z << std::endl;
@@ -623,8 +625,8 @@ int main(int argc, char* argv[])
             std::cout << "!!Ray intersecta a mesa!!" << std::endl;
         }
 
-        glUniformMatrix4fv(g_view_uniform, 1, GL_FALSE, glm::value_ptr(g_ViewMatrix));
-        glUniformMatrix4fv(g_projection_uniform, 1, GL_FALSE, glm::value_ptr(g_ProjectionMatrix));
+        glUniformMatrix4fv(g_view_uniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        glUniformMatrix4fv(g_projection_uniform, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
         // Desenhamos o plano do chão
         // model = Matrix_Translate(0.0f,-1.1f,0.0f) * Matrix_Scale(1.0f,1.0f,1.0f);

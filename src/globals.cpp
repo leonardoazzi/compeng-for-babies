@@ -42,6 +42,3 @@ GLint g_bbox_max_uniform;
 GLuint g_NumLoadedTextures = 0;
 
 double g_LastCursorPosX, g_LastCursorPosY;
-
-glm::mat4 g_ProjectionMatrix;
-glm::mat4 g_ViewMatrix;
