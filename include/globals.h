@@ -89,6 +89,17 @@ struct SceneObject
     glm::vec3    bbox_max;
 };
 
+/**
+ * @brief Struct que representa uma axis-aligned bounding box (AABB).
+ * 
+ * Uma AABB (Axis-Aligned Bounding Box) é utilizada para representar uma caixa delimitadora
+ * que possui seus lados paralelos aos eixos do sistema de coordenadas. Ela é definida pelos pontos
+ * mínimo e máximo que a delimitam.
+ */
+struct AABB {
+    glm::vec3 min;
+    glm::vec3 max;
+};
 
 // Abaixo definimos variáveis globais utilizadas em várias funções do código.
 
@@ -100,6 +111,10 @@ extern std::map<std::string, SceneObject> g_VirtualScene;
 
 // Pilha que guardará as matrizes de modelagem.
 extern std::stack<glm::mat4>  g_MatrixStack;
+
+// Largura e altura da janela de renderização.
+extern float g_ScreenWidth;
+extern float g_ScreenHeight;
 
 // Razão de proporção da janela (largura/altura). Veja função FramebufferSizeCallback().
 extern float g_ScreenRatio;
@@ -167,3 +182,7 @@ extern bool D_key_pressed;
 // Variável para modificar o tipo de câmera (look-at/free camera)
 extern bool freeCamera;
 extern bool lookatCamera;
+
+// Matriz de projeção
+extern glm::mat4 g_ProjectionMatrix;
+extern glm::mat4 g_ViewMatrix;
