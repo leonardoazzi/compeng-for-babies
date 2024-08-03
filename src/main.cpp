@@ -33,62 +33,9 @@
 #include "textrendering.h"
 // #include "callback.h"
 #include "window.h"
+#include "collisions.h"
 
 #define M_PI 3.14159265358979323846
-
-/**
- * @brief Struct que representa uma axis-aligned bounding box (AABB).
- * 
- * Uma AABB (Axis-Aligned Bounding Box) é utilizada para representar uma caixa delimitadora
- * que possui seus lados paralelos aos eixos do sistema de coordenadas. Ela é definida pelos pontos
- * mínimo e máximo que a delimitam.
- */
-struct AABB {
-    glm::vec3 min;
-    glm::vec3 max;
-};
-
-/**
- * @brief Verifica se dois cubos representados por AABBs se intersectam nos eixos x, y e z.
- * Adaptado de https://gamedev.stackexchange.com/questions/96060/collision-detection-in-opengl
- *
- * @param a O primeiro cubo AABB.
- * @param b O segundo cubo AABB.
- * @return True se os cubos AABB se intersectam, false caso contrário.
- */
-bool CubeIntersectsCube(AABB a, AABB b){
-    int intersectedAxes = 0;
-
-    if (a.min.x <= b.max.x && a.max.x >= b.min.x) intersectedAxes++;
-    if (a.min.y <= b.max.y && a.max.y >= b.min.y) intersectedAxes++;
-    if (a.min.z <= b.max.z && a.max.z >= b.min.z) intersectedAxes++;
-
-    std::cout << "Eixos com intersecção: " << intersectedAxes << std::endl;
-
-    return intersectedAxes == 3;
-}
-
-/**
- * @brief Calcula o axis-aligned bounding box (AABB) para um objeto da cena em coordenadas de mundo.
- * 
- * @param obj O objeto da cena, que contém em sua struct uma AABB em coordenadas de modelo.
- * @param model A matriz modelo que representa as transformações geométricas necessárias para o objeto estar em coordenadas de mundo.
- * @return A AABB do objeto em coordenadas de mundo.
- */
-AABB GetWorldAABB(SceneObject obj, glm::mat4 model){
-    // Dada uma matriz model, transforma as coordenadas locais da AABB do objeto para coordenadas de mundo.
-    glm::vec4 min = model * glm::vec4(obj.bbox_min.x, obj.bbox_min.y, obj.bbox_min.z, 1.0f);
-    glm::vec4 max = model * glm::vec4(obj.bbox_max.x, obj.bbox_max.y, obj.bbox_max.z, 1.0f);
-
-    // @DEBUG
-    // std::cout << "BBox Local Min: " << bbox.min.x << " " << bbox.min.y << " " << bbox.min.z << std::endl;
-    // std::cout << "BBox Local Max: " << bbox.max.x << " " << bbox.max.y << " " << bbox.max.z << std::endl;
-    // std::cout << "BBox World Min: " << min.x << " " << min.y << " " << min.z << std::endl;
-    // std::cout << "BBox World Max: " << max.x << " " << max.y << " " << max.z << std::endl;
-
-    // Retorna a bounding box em coordenadas de  mundo
-    return AABB{min, max}; 
-}
 
 int main(int argc, char* argv[])
 {
@@ -131,6 +78,7 @@ int main(int argc, char* argv[])
 
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     buildModel("../../data/sphere.obj");
+    buildModel("../../data/bunny.obj");
     buildModel("../../data/lampada/lightbulb_01_4k.obj");
     buildModel("../../data/and/and.obj");
     buildModel("../../data/cylinder/cylinder.obj");
@@ -228,22 +176,22 @@ int main(int argc, char* argv[])
 
         // Computamos a matriz "View" utilizando os parâmetros da câmera para
         // definir o sistema de coordenadas da câmera.  Veja slides 2-14, 184-190 e 236-242 do documento Aula_08_Sistemas_de_Coordenadas.pdf.
-        glm::mat4 view = Matrix_Camera_View(camera_position_c, camera_view_vector, camera_up_vector);
-
-        // Agora computamos a matriz de Projeção.
-        glm::mat4 projection;
+        glm::mat4 viewMatrix = Matrix_Camera_View(camera_position_c, camera_view_vector, camera_up_vector);
 
         // Note que, no sistema de coordenadas da câmera, os planos near e far
         // estão no sentido negativo! Veja slides 176-204 do documento Aula_09_Projecoes.pdf.
         float nearplane = -0.1f;  // Posição do "near plane"
         float farplane  = -10.0f; // Posição do "far plane"
 
+        // Agora computamos a matriz de Projeção.
+        glm::mat4 projectionMatrix;
+
         if (g_UsePerspectiveProjection)
         {
             // Projeção Perspectiva.
             // Para definição do field of view (FOV), veja slides 205-215 do documento Aula_09_Projecoes.pdf.
             float field_of_view = 3.141592 / 3.0f;
-            projection = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
+            projectionMatrix = Matrix_Perspective(field_of_view, g_ScreenRatio, nearplane, farplane);
         }
         else
         {
@@ -256,7 +204,7 @@ int main(int argc, char* argv[])
             float b = -t;
             float r = t*g_ScreenRatio;
             float l = -r;
-            projection = Matrix_Orthographic(l, r, b, t, nearplane, farplane);
+            projectionMatrix = Matrix_Orthographic(l, r, b, t, nearplane, farplane);
         }
 
         glm::mat4 model = Matrix_Identity(); // Transformação identidade de modelagem
@@ -264,8 +212,8 @@ int main(int argc, char* argv[])
         // Enviamos as matrizes "view" e "projection" para a placa de vídeo
         // (GPU). Veja o arquivo "shader_vertex.glsl", onde estas são
         // efetivamente aplicadas em todos os pontos.
-        glUniformMatrix4fv(g_view_uniform       , 1 , GL_FALSE , glm::value_ptr(view));
-        glUniformMatrix4fv(g_projection_uniform , 1 , GL_FALSE , glm::value_ptr(projection));
+        glUniformMatrix4fv(g_view_uniform       , 1 , GL_FALSE , glm::value_ptr(viewMatrix));
+        glUniformMatrix4fv(g_projection_uniform , 1 , GL_FALSE , glm::value_ptr(projectionMatrix));
 
         #define SPHERE 0
         #define LIGHTBULB_WIRE 1
@@ -281,6 +229,7 @@ int main(int argc, char* argv[])
         #define PLANE_NOT 11
         #define LIGHTBULB_AND 12
         #define PLANE_AND 13
+        #define BUNNY 14
 
         #define PLANE_WIDTH 0.2f
         #define PLANE_HEIGHT 0.145f
@@ -300,6 +249,9 @@ int main(int argc, char* argv[])
             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
             glUniform1i(g_object_id_uniform, TABLE);
             DrawVirtualObject("table");
+
+            AABB tableBbox = GetWorldAABB(g_VirtualScene["table"], model);
+
         PopMatrix(model);
 
         // Variáveis usadas para calcular as alturas dos objetos e colocá-los em cima da mesa
@@ -503,8 +455,6 @@ int main(int argc, char* argv[])
                     glUniform1i(g_object_id_uniform, LIGHTBULB_AND);
                     DrawVirtualObject("lightbulb_01");
 
-                    AABB andBulbBbox = GetWorldAABB(g_VirtualScene["lightbulb_01"], model);
-
                 PopMatrix(model);
 
                 PushMatrix(model);
@@ -580,6 +530,8 @@ int main(int argc, char* argv[])
                             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                             glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
                             DrawVirtualObject("the_plane");
+
+                            AABB andInput1Bbox = GetWorldAABB(g_VirtualScene["Cube"], model);
                         PopMatrix(model);
                         
                     PopMatrix(model);
@@ -620,6 +572,8 @@ int main(int argc, char* argv[])
                             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                             glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
                             DrawVirtualObject("the_plane");
+
+                            AABB andInput2Bbox = GetWorldAABB(g_VirtualScene["Cube"], model);
                         PopMatrix(model);
                         
                     PopMatrix(model);                
@@ -644,16 +598,35 @@ int main(int argc, char* argv[])
         // Testes de interseção entre objetos
         // @TODO: os else if serão refatorados!
         // ================================================================
-        if (CubeIntersectsCube(wirePlaneBbox,wireBulbBbox)){
-            std::cout << "Plano de Wire e Lâmpada do Wire intersectam" << std::endl;
-        } 
-        else if (CubeIntersectsCube(wirePlaneBbox,andBulbBbox)){
-            std::cout << "Plano de Wire e Lâmpada do AND intersectam" << std::endl;
+        // Projeta um ray casting em coord. do mundo a partir das coord. do mouse
+        glm::vec3 mousePoint = MouseRayCasting(projectionMatrix, viewMatrix);
+        glm::vec3 rayVec = glm::normalize(glm::vec4(mousePoint, 1.0f));
+
+        std::cout << "Mouse point: " << mousePoint.x << " " << mousePoint.y << " " << mousePoint.z << std::endl;
+        std::cout << "Ray vector: " << rayVec.x << " " << rayVec.y << " " << rayVec.z << std::endl;
+
+        // if (CubeIntersectsCube(wirePlaneBbox,wireBulbBbox)){
+        //     std::cout << "Plano de Wire e Lâmpada do Wire intersectam" << std::endl;
+        // } 
+        // else if (CubeIntersectsCube(wirePlaneBbox,andBulbBbox)){
+        //     std::cout << "Plano de Wire e Lâmpada do AND intersectam" << std::endl;
+        // }
+ 
+        if (RayIntersectsCube(camera_position_c, rayVec, wireBulbBbox)){
+            std::cout << "!!Ray intersecta a lâmpada do Wire" << std::endl;
+        }
+        if (RayIntersectsCube(camera_position_c, rayVec, andInput1Bbox)){
+            std::cout << "!!Ray intersecta o input 2 do AND" << std::endl;
+        }
+        if (RayIntersectsCube(camera_position_c, rayVec, andInput2Bbox)){
+            std::cout << "!!Ray intersecta o input 1 do AND" << std::endl;
+        }   
+        if (RayIntersectsCube(camera_position_c, rayVec, tableBbox)){
+            std::cout << "!!Ray intersecta a mesa!!" << std::endl;
         }
 
-
-        glUniformMatrix4fv(g_view_uniform, 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(g_projection_uniform, 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(g_view_uniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+        glUniformMatrix4fv(g_projection_uniform, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
         // Desenhamos o plano do chão
         // model = Matrix_Translate(0.0f,-1.1f,0.0f) * Matrix_Scale(1.0f,1.0f,1.0f);

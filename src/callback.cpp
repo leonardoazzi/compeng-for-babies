@@ -1,4 +1,5 @@
 #include "callback.h"
+#include <iostream>
 
 bool isInput1Digit0 = true;
 bool isInput2Digit0 = true;
@@ -287,8 +288,8 @@ void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
         g_LastCursorPosY = ypos;
     }
 
-    if (g_RightMouseButtonPressed)
-    {
+    // if (g_RightMouseButtonPressed)
+    // {
         // Deslocamento do cursor do mouse em x e y de coordenadas de tela!
         float dx = xpos - g_LastCursorPosX;
         float dy = ypos - g_LastCursorPosY;
@@ -301,7 +302,7 @@ void CursorPosCallback(GLFWwindow* window, double xpos, double ypos)
         // cursor como sendo a última posição conhecida do cursor.
         g_LastCursorPosX = xpos;
         g_LastCursorPosY = ypos;
-    }
+    // }
 
     if (g_MiddleMouseButtonPressed)
     {

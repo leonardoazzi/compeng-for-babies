@@ -19,6 +19,7 @@ set(SOURCES
   src/stackMatrix.cpp
   src/textrendering.cpp
   src/window.cpp
+  src/collisions.cpp
 )
 
 cmake_minimum_required(VERSION 3.5.0)

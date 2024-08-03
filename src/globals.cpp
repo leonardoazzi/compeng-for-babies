@@ -5,6 +5,8 @@ std::map<std::string, SceneObject> g_VirtualScene;
 // Pilha que guardará as matrizes de modelagem.
 std::stack<glm::mat4>  g_MatrixStack;
 
+float g_ScreenWidth = 800.0f;
+float g_ScreenHeight = 600.0f;
 float g_ScreenRatio = 1.0f;
 
 float g_AngleX = 0.0f;
