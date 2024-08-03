@@ -13,7 +13,7 @@ in vec4 position_model;
 // Coordenadas de textura obtidas do arquivo OBJ (se existirem!)
 in vec2 texcoords;
 
-in vec4 colorBlocks; // Cor dos blocos para shading de Gourard
+in vec4 colorWire; // Cor dos blocos para shading de Gourard
 
 // Matrizes computadas no código C++ e enviadas para a GPU
 uniform mat4 model;
@@ -23,9 +23,9 @@ uniform mat4 projection;
 // Identificador que define qual objeto está sendo desenhado no momento
 #define SPHERE 0
 #define LIGHTBULB_WIRE 1
-#define NOT  2
-#define AND  3
-#define WIRE  4
+#define NOT 2
+#define AND 3
+#define WIRE 4
 #define DISPLAY 5
 #define TABLE 6
 #define INPUT1_DIGIT 7
@@ -46,7 +46,6 @@ uniform sampler2D TextureImage0;
 uniform sampler2D TextureLightbulbOFF;
 uniform sampler2D TextureLightbulbON;
 uniform sampler2D TextureTable;
-uniform sampler2D TextureWire;
 uniform sampler2D TextureDisplay;
 uniform sampler2D TextureDigit0;
 uniform sampler2D TextureDigit1;
@@ -54,6 +53,7 @@ uniform sampler2D TexturePlaneWire;
 uniform sampler2D TexturePlaneNot;
 uniform sampler2D TextureSphere;
 uniform sampler2D TexturePlaneAnd;
+uniform sampler2D TextureBlocks;
 
 uniform bool u_isInput1Digit0;
 uniform bool u_isInput2Digit0;
@@ -190,11 +190,9 @@ void main()
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
     }
-    else if (object_id == WIRE) // Blinn-Phong e Phong shading
+    else if (object_id == WIRE) // Blinn-Phong e Gourard shading
     {
-        Kd = texture(TextureWire, texcoords).rgb;
-        lambertDiffuseTerm = Kd * I * lambert;
-        color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
+        color = colorWire; // Cor resultante do shading de Gourard
     }
     else if (object_id == DISPLAY) // Blinn-Phong e Phong shading
     {
@@ -244,9 +242,13 @@ void main()
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
     }
-    else if (object_id == NOT || object_id == AND) // Blinn-Phong e Gourard shading
+    else if (object_id == NOT || object_id == AND) // Blinn-Phong e Phong shading
     {
-        color = colorBlocks; // Gourard shading calculado no shaders de vertex
+        U = texcoords.x;
+        V = texcoords.y;
+        Kd = texture(TextureBlocks, vec2(U,V)).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
     }
 
     // NOTE: Se você quiser fazer o rendering de objetos transparentes, é

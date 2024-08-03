@@ -20,12 +20,9 @@ out vec4 position_model;
 out vec4 normal;
 out vec2 texcoords;
 
-out vec4 colorBlocks; // Cor dos blocos para shading de Gourard
+out vec4 colorWire; // Cor dos blocos para shading de Gourard
 
 uniform int object_id;
-
-#define NOT  2
-#define AND  3
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
 uniform vec4 bbox_min;
@@ -34,12 +31,13 @@ uniform vec4 bbox_max;
 // Constantes
 #define M_PI   3.14159265358979323846
 #define M_PI_2 1.57079632679489661923
+#define WIRE 4
 
 // Coordenadas de textura U e V
 float U = 0.0;
 float V = 0.0;
 
-uniform sampler2D TextureBlocks;
+uniform sampler2D TextureWire;
 
 void main()
 {
@@ -85,7 +83,7 @@ void main()
     // Coordenadas de textura obtidas do arquivo OBJ (se existirem!)
     texcoords = texture_coefficients;
 
-    if (object_id == AND || object_id == NOT) {
+    if (object_id == WIRE) {
         // Obtemos a posição da câmera utilizando a inversa da matriz que define o
         // sistema de coordenadas da câmera.
         vec4 origin = vec4(0.0, 0.0, 0.0, 1.0);
@@ -108,40 +106,34 @@ void main()
         // Vetor que define o sentido da câmera em relação ao ponto atual.
         vec4 v = normalize(camera_position - p);
 
-        float minx = bbox_min.x;
-        float maxx = bbox_max.x;
-
-        float miny = bbox_min.y;
-        float maxy = bbox_max.y;
-
-        float minz = bbox_min.z;
-        float maxz = bbox_max.z;
-
-        U = (position_model.x - minx) / (maxx - minx);
-        V = (position_model.y - miny) / (maxy - miny);
+        // Coordenadas de textura U e V
+        float U = texcoords.x;
+        float V = texcoords.y;
 
         // Variáveis usadas para os modelos de iluminação
         vec3 Kd, Ia, Ka, Ks, I;
-        float qlinha;
+        float lambert, qlinha;
+        vec3 lambertDiffuseTerm, ambientTerm, specularTerm;
 
         // Definição dos coeficientes de reflexão da superfície
         Ka  = vec3(0.1,0.1,0.1); // coeficiente de reflexão ambiente
         Ks  = vec3(0.5,0.5,0.5); // coeficiente de reflexão especular
         Ia  = vec3(0.2,0.2,0.2); // intensidade da luz ambiente
         I   = vec3(1.0,1.0,1.0); // intensidade da luz
-
-        Kd = texture(TextureBlocks, texcoords).rgb;
+        
+        Kd = texture(TextureWire, vec2(U,V)).rgb;
 
         // Equação de Iluminação
-        float lambert = max(0,dot(n,l));
+        lambert = max(0,dot(n,l));
         qlinha = 10.0;
 
         vec4 h = normalize(l+v);
-        vec3 lambertDiffuseTerm = Kd * I * lambert;
-        vec3 ambientTerm = Ka * Ia;
-        vec3 specularTerm = Ks * I * pow(dot(n, h),qlinha);
+        lambertDiffuseTerm = Kd * I * lambert;
+        ambientTerm = Ka * Ia;
+        specularTerm = Ks * I * pow(dot(n, h),qlinha);
 
-        colorBlocks.rgb = lambertDiffuseTerm + ambientTerm + specularTerm;
+        colorWire.rgb = lambertDiffuseTerm + ambientTerm + specularTerm;
+        colorWire.a = 1.0;
     }
 }
 
