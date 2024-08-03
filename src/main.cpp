@@ -335,7 +335,7 @@ int main(int argc, char* argv[])
 
                 // Plano com o circuito WIRE
                 PushMatrix(model);
-                    model *= Matrix_Scale(PLANE_WIDTH, 0.0f, PLANE_HEIGHT);
+                    model *= Matrix_Scale(PLANE_WIDTH, 1.0f, PLANE_HEIGHT);
                     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                     glUniform1i(g_object_id_uniform, PLANE_WIRE);
                     DrawVirtualObject("the_plane");
@@ -400,7 +400,7 @@ int main(int argc, char* argv[])
 
                 // Plano com o circuito NOT
                 PushMatrix(model);
-                    model *= Matrix_Scale(PLANE_WIDTH, 0.0f, PLANE_HEIGHT);
+                    model *= Matrix_Scale(PLANE_WIDTH, 1.0f, PLANE_HEIGHT);
                     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                     glUniform1i(g_object_id_uniform, PLANE_NOT);
 
@@ -490,7 +490,7 @@ int main(int argc, char* argv[])
 
                 // Plano com o circuito AND
                 PushMatrix(model);
-                    model *= Matrix_Scale(PLANE_WIDTH, 50.0f, PLANE_HEIGHT);
+                    model *= Matrix_Scale(PLANE_WIDTH, 1.0f, PLANE_HEIGHT);
                     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                     glUniform1i(g_object_id_uniform, PLANE_AND);
                     DrawVirtualObject("the_plane");

@@ -20,6 +20,27 @@ out vec4 position_model;
 out vec4 normal;
 out vec2 texcoords;
 
+out vec4 colorBlocks; // Cor dos blocos para shading de Gourard
+
+uniform int object_id;
+
+#define NOT  2
+#define AND  3
+
+// Parâmetros da axis-aligned bounding box (AABB) do modelo
+uniform vec4 bbox_min;
+uniform vec4 bbox_max;
+
+// Constantes
+#define M_PI   3.14159265358979323846
+#define M_PI_2 1.57079632679489661923
+
+// Coordenadas de textura U e V
+float U = 0.0;
+float V = 0.0;
+
+uniform sampler2D TextureBlocks;
+
 void main()
 {
     // A variável gl_Position define a posição final de cada vértice
@@ -63,5 +84,64 @@ void main()
 
     // Coordenadas de textura obtidas do arquivo OBJ (se existirem!)
     texcoords = texture_coefficients;
+
+    if (object_id == AND || object_id == NOT) {
+        // Obtemos a posição da câmera utilizando a inversa da matriz que define o
+        // sistema de coordenadas da câmera.
+        vec4 origin = vec4(0.0, 0.0, 0.0, 1.0);
+        vec4 camera_position = inverse(view) * origin;
+
+        // O fragmento atual é coberto por um ponto que percente à superfície de um
+        // dos objetos virtuais da cena. Este ponto, p, possui uma posição no
+        // sistema de coordenadas global (World coordinates). Esta posição é obtida
+        // através da interpolação, feita pelo rasterizador, da posição de cada
+        // vértice.
+        vec4 p = position_world;
+
+        // Normal do fragmento atual, interpolada pelo rasterizador a partir das
+        // normais de cada vértice.
+        vec4 n = normalize(normal);
+
+        // Vetor que define o sentido da fonte de luz em relação ao ponto atual.
+        vec4 l = normalize(vec4(0.5,1.0,0.0,0.0));
+
+        // Vetor que define o sentido da câmera em relação ao ponto atual.
+        vec4 v = normalize(camera_position - p);
+
+        float minx = bbox_min.x;
+        float maxx = bbox_max.x;
+
+        float miny = bbox_min.y;
+        float maxy = bbox_max.y;
+
+        float minz = bbox_min.z;
+        float maxz = bbox_max.z;
+
+        U = (position_model.x - minx) / (maxx - minx);
+        V = (position_model.y - miny) / (maxy - miny);
+
+        // Variáveis usadas para os modelos de iluminação
+        vec3 Kd, Ia, Ka, Ks, I;
+        float qlinha;
+
+        // Definição dos coeficientes de reflexão da superfície
+        Ka  = vec3(0.1,0.1,0.1); // coeficiente de reflexão ambiente
+        Ks  = vec3(0.5,0.5,0.5); // coeficiente de reflexão especular
+        Ia  = vec3(0.2,0.2,0.2); // intensidade da luz ambiente
+        I   = vec3(1.0,1.0,1.0); // intensidade da luz
+
+        Kd = texture(TextureBlocks, texcoords).rgb;
+
+        // Equação de Iluminação
+        float lambert = max(0,dot(n,l));
+        qlinha = 10.0;
+
+        vec4 h = normalize(l+v);
+        vec3 lambertDiffuseTerm = Kd * I * lambert;
+        vec3 ambientTerm = Ka * Ia;
+        vec3 specularTerm = Ks * I * pow(dot(n, h),qlinha);
+
+        colorBlocks.rgb = lambertDiffuseTerm + ambientTerm + specularTerm;
+    }
 }
 
