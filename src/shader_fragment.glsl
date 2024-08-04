@@ -13,6 +13,8 @@ in vec4 position_model;
 // Coordenadas de textura obtidas do arquivo OBJ (se existirem!)
 in vec2 texcoords;
 
+in vec4 colorWire; // Cor dos blocos para shading de Gourard
+
 // Matrizes computadas no código C++ e enviadas para a GPU
 uniform mat4 model;
 uniform mat4 view;
@@ -21,9 +23,9 @@ uniform mat4 projection;
 // Identificador que define qual objeto está sendo desenhado no momento
 #define SPHERE 0
 #define LIGHTBULB_WIRE 1
-#define NOT  2
-#define AND  3
-#define WIRE  4
+#define NOT 2
+#define AND 3
+#define WIRE 4
 #define DISPLAY 5
 #define TABLE 6
 #define INPUT1_DIGIT 7
@@ -44,15 +46,14 @@ uniform sampler2D TextureImage0;
 uniform sampler2D TextureLightbulbOFF;
 uniform sampler2D TextureLightbulbON;
 uniform sampler2D TextureTable;
-uniform sampler2D TextureWire;
 uniform sampler2D TextureDisplay;
 uniform sampler2D TextureDigit0;
 uniform sampler2D TextureDigit1;
 uniform sampler2D TexturePlaneWire;
 uniform sampler2D TexturePlaneNot;
-uniform sampler2D TextureBlocks;
 uniform sampler2D TextureSphere;
 uniform sampler2D TexturePlaneAnd;
+uniform sampler2D TextureBlocks;
 
 uniform bool u_isInput1Digit0;
 uniform bool u_isInput2Digit0;
@@ -82,22 +83,38 @@ void main()
     // normais de cada vértice.
     vec4 n = normalize(normal);
 
-    // Vetor que define o sentido da fonte de luz em relação ao ponto atual.
-    vec4 l = normalize(vec4(1.0,1.0,0.0,0.0));
-
     // Vetor que define o sentido da câmera em relação ao ponto atual.
     vec4 v = normalize(camera_position - p);
+
+    // Vetor que define o sentido da fonte de luz em relação ao ponto atual.
+    vec4 l = v;
+
+    // Vetor que define o sentido da reflexão especular ideal.
+    vec4 r = -l + 2 * n * dot(n, l);
 
     // Coordenadas de textura U e V
     float U = 0.0;
     float V = 0.0;
 
-    // Equação de Iluminação
-    float lambert = max(0,dot(n,l));
+    // Variáveis usadas para os modelos de iluminação
+    vec3 Kd, Ia, Ka, Ks, I;
+    float lambert, q;
+    vec3 lambertDiffuseTerm, ambientTerm, specularTerm;
 
-    vec3 Kd, Ke, Ia, Ka, Ks, I;
+    // Definição dos coeficientes de reflexão da superfície
+    Ka  = vec3(0.1,0.1,0.1); // coeficiente de reflexão ambiente
+    Ks  = vec3(0.5,0.5,0.5); // coeficiente de reflexão especular
+    Ia  = vec3(0.2,0.2,0.2); // intensidade da luz ambiente
+    I   = vec3(1.0,1.0,1.0); // intensidade da luz
 
-    if ( object_id == SPHERE )
+    lambert = max(0,dot(n,l));
+    q = 10.0;
+
+    vec4 h = normalize(l+v);
+    ambientTerm = Ka * Ia;
+    specularTerm = Ks * I * pow(dot(n, h),q);
+
+    if ( object_id == SPHERE ) // Blinn-Phong e Phong shading
     {
         // PREENCHA AQUI as coordenadas de textura da esfera, computadas com
         // projeção esférica EM COORDENADAS DO MODELO. Utilize como referência
@@ -124,116 +141,117 @@ void main()
         U = (theta + M_PI) / (2.0 * M_PI);
         V = (phi + M_PI / 2) / M_PI;
 
-        // Obtemos a refletância difusa a partir da leitura da imagem TextureImage0
+        // Obtemos a refletância difusa a partir da leitura da imagem TextureSphere
         Kd = texture(TextureSphere, vec2(U,V)).rgb;
-        color.rgb = Kd;
-        color.a = 1;
+
+        lambertDiffuseTerm = Kd * I * lambert;
+
+        color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
     }
-    else if ( object_id == LIGHTBULB_WIRE )
+    else if ( object_id == LIGHTBULB_WIRE ) // ON=Blinn-Phong, OFF=Diffuse, Phong shading
     {
-        if (u_isInput1Digit0)
-            Kd = texture(TextureLightbulbOFF, texcoords).rgb;
-        else
+        if (!u_isInput1Digit0) {
             Kd = texture(TextureLightbulbON, texcoords).rgb;
-
-        color.rgb = Kd;
-        color.a = 1;
-    }
-    else if ( object_id == LIGHTBULB_NOT )
-    {
-        if (u_isInput1Digit0)
-            Kd = texture(TextureLightbulbON, texcoords).rgb;
-        else
+            lambertDiffuseTerm = Kd * I * lambert;
+            color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
+        }
+        else {
             Kd = texture(TextureLightbulbOFF, texcoords).rgb;
-
-        color.rgb = Kd;
-        color.a = 1;
+            lambertDiffuseTerm = Kd * I * lambert;
+            color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
+        }
     }
-    else if ( object_id == LIGHTBULB_AND )
+    else if ( object_id == LIGHTBULB_NOT ) // ON=Blinn-Phong e Phong shading, OFF=Diffuse e Gouraud shading
     {
-        if (!u_isInput1Digit0 && !u_isInput2Digit0)
+        if (u_isInput1Digit0) {
             Kd = texture(TextureLightbulbON, texcoords).rgb;
-        else
+            lambertDiffuseTerm = Kd * I * lambert;
+            color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
+        }
+        else {
             Kd = texture(TextureLightbulbOFF, texcoords).rgb;
-
-        color.rgb = Kd;
-        color.a = 1;
+            lambertDiffuseTerm = Kd * I * lambert;
+            color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
+        }
     }
-    else if (object_id == TABLE)
+    else if ( object_id == LIGHTBULB_AND ) // ON=Blinn-Phong e Phong shading, OFF=Diffuse e Gouraud shading
     {
-
+        if (!u_isInput1Digit0 && !u_isInput2Digit0) {
+            Kd = texture(TextureLightbulbON, texcoords).rgb;
+            lambertDiffuseTerm = Kd * I * lambert;
+            color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
+        }
+        else {
+            Kd = texture(TextureLightbulbOFF, texcoords).rgb;
+            lambertDiffuseTerm = Kd * I * lambert;
+            color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
+        }
+    }
+    else if (object_id == TABLE) // Diffuse e Phong shading
+    {
         Kd = texture(TextureTable, texcoords).rgb;
-        color.rgb = Kd;
-        color.a = 1;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
     }
-    else if (object_id == WIRE)
+    else if (object_id == WIRE) // Blinn-Phong e Gourard shading
     {
-        Kd = texture(TextureWire, texcoords).rgb;
-        color.rgb = Kd;
-        color.a = 1;
+        color = colorWire; // Cor resultante do shading de Gourard
     }
-    else if (object_id == DISPLAY)
+    else if (object_id == DISPLAY) // Blinn-Phong e Phong shading
     {
         Kd = texture(TextureDisplay, texcoords).rgb;
-        color.rgb = Kd;
-        color.a = 1;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
     }
-    else if (object_id == INPUT1_DIGIT)
+    else if (object_id == INPUT1_DIGIT) // Diffuse e Phong shading
     {
         if (u_isInput1Digit0)
             Kd = texture(TextureDigit0, texcoords).rgb;
         else
             Kd = texture(TextureDigit1, texcoords).rgb;
-        color.rgb = Kd;
-        color.a = 1;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
     }
-    else if (object_id == INPUT2_DIGIT)
+    else if (object_id == INPUT2_DIGIT) // Diffuse e Phong shading
     {
         if (u_isInput2Digit0)
             Kd = texture(TextureDigit0, texcoords).rgb;
         else
             Kd = texture(TextureDigit1, texcoords).rgb;
-        color.rgb = Kd;
-        color.a = 1;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
     }
-    else if (object_id == PLANE_WIRE)
+    else if (object_id == PLANE_WIRE) // Diffuse e Phong shading
     {
-        Kd = texture(TexturePlaneWire, texcoords).rgb;
-        color.rgb = Kd;
-        color.a = 1;
+        U = texcoords.x;
+        V = texcoords.y;
+        Kd = texture(TexturePlaneWire, vec2(U,V)).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
     }
-    else if (object_id == PLANE_NOT)
+    else if (object_id == PLANE_NOT) // Diffuse e Phong shading
     {
-        Kd = texture(TexturePlaneNot, texcoords).rgb;
-        color.rgb = Kd;
-        color.a = 1;
+        U = texcoords.x;
+        V = texcoords.y;
+        Kd = texture(TexturePlaneNot, vec2(U,V)).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
     }
-    else if (object_id == PLANE_AND)
+    else if (object_id == PLANE_AND) // Diffuse e Phong shading
     {
-        Kd = texture(TexturePlaneAnd, texcoords).rgb;
-        color.rgb = Kd;
-        color.a = 1;
+        U = texcoords.x;
+        V = texcoords.y;
+        Kd = texture(TexturePlaneAnd, vec2(U,V)).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
     }
-    else if (object_id == NOT || object_id == AND)
+    else if (object_id == NOT || object_id == AND) // Blinn-Phong e Phong shading
     {
-        // Projeção cilíndrica
-        vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
-        float height = bbox_max.y - bbox_min.y;
-
-        // ponto q no eixo central com igual altura ao ponto p position_model
-        vec4 q = vec4(bbox_center.x, position_model.y, bbox_center.z, 1.0f);
-
-        vec4 position_cylinder = q + normalize(position_model - q);
-
-        float theta = atan(position_cylinder.z - bbox_center.z, position_cylinder.x - bbox_center.x);
-        float h = position_cylinder.y - bbox_min.y;
-
-        U = (theta + M_PI) / (2.0 * M_PI);
-        V = h / height;
-
+        U = texcoords.x;
+        V = texcoords.y;
         Kd = texture(TextureBlocks, vec2(U,V)).rgb;
-        color.rgb = Kd;
-        color.a = 1;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
     }
 
     // NOTE: Se você quiser fazer o rendering de objetos transparentes, é
@@ -248,10 +266,9 @@ void main()
     //    suas distâncias para a câmera (desenhando primeiro objetos
     //    transparentes que estão mais longe da câmera).
     // Alpha default = 1 = 100% opaco = 0% transparente
-    // color.a = 1;
+    color.a = 1;
 
     // Cor final com correção gamma, considerando monitor sRGB.
     // Veja https://en.wikipedia.org/w/index.php?title=Gamma_correction&oldid=751281772#Windows.2C_Mac.2C_sRGB_and_TV.2Fvideo_standard_gammas
     color.rgb = pow(color.rgb, vec3(1.0,1.0,1.0)/2.2);
 } 
-
