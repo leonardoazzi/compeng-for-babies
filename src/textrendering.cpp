@@ -359,9 +359,8 @@ void TextRendering_ShowModelViewProjection(
     TextRendering_PrintMatrixVectorProductMoreDigits(window, viewport_mapping, p_ndc, -1.0f, 1.0f-26*pad, 1.0f);
 }
 
-// Escrevemos na tela os ângulos de Euler definidos nas variáveis globais
-// g_AngleX, g_AngleY, e g_AngleZ.
-void TextRendering_ShowEulerAngles(GLFWwindow* window)
+// Escrevemos na tela as coordenadas do mouse na janela
+void TextRendering_ShowMouseCoords(GLFWwindow* window)
 {
     if ( !g_ShowInfoText )
         return;
@@ -369,9 +368,23 @@ void TextRendering_ShowEulerAngles(GLFWwindow* window)
     float pad = TextRendering_LineHeight(window);
 
     char buffer[80];
-    snprintf(buffer, 80, "Euler Angles rotation matrix = Z(%.2f)*Y(%.2f)*X(%.2f)\n", g_AngleZ, g_AngleY, g_AngleX);
+    snprintf(buffer, 80, "Cursor = X(%.2f), Y(%.2f)\n", g_LastCursorPosX, g_LastCursorPosY);
 
     TextRendering_PrintString(window, buffer, -1.0f+pad/10, -1.0f+2*pad/10, 1.0f);
+}
+
+// Escrevemos na tela as coordenadas do ponto de ray casting
+void TextRendering_ShowRayCast(GLFWwindow* window)
+{
+    if ( !g_ShowInfoText )
+        return;
+
+    float pad = TextRendering_LineHeight(window);
+
+    char buffer[80];
+    snprintf(buffer, 80, "Raycast = x(%.2f), y(%.2f), z(%.2f)\n", g_rayPoint.x, g_rayPoint.y, g_rayPoint.z);
+
+    TextRendering_PrintString(window, buffer, -1.0f+pad/10, -1.0f+2*pad/1, 1.0f);
 }
 
 // Escrevemos na tela qual matriz de projeção está sendo utilizada.

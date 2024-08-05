@@ -124,6 +124,9 @@ int main(int argc, char* argv[])
     // movimento no modo câmera livre
     glm::vec4 camera_movement = glm::vec4(0.0f,0.0f,0.0f,0.0f);
 
+    // Inicializa a flag de colisão com a mesa
+    bool isTableCollision = false;
+
     // Ficamos em um loop infinito, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
     {
@@ -163,6 +166,7 @@ int main(int argc, char* argv[])
 
         // Câmera livre
         if (freeCamera == true){
+            camera_movement.y = 1.0f; // Fixa o movimento no eixo Y para evitar que a câmera livre suba ou desça
             camera_position_c  = glm::vec4(x_fixed,y_fixed,z_fixed,1.0f) + camera_movement; // Ponto "c", centro da câmera
             camera_view_vector = glm::vec4(-x,-y,-z,0.0f); // Vetor "view", sentido para onde a câmera está virada
         };
@@ -241,6 +245,7 @@ int main(int argc, char* argv[])
    
         // Guardamos matriz model atual na pilha
         PushMatrix(model);
+
             // Desenhamos o modelo da mesa
             model *= Matrix_Rotate_Z(M_PI/2.0f)
                 * Matrix_Rotate_X(M_PI/2.0f)
@@ -265,14 +270,6 @@ int main(int argc, char* argv[])
         glUniform4f(g_bbox_max_uniform, bbox_max.x, bbox_max.y, bbox_max.z, 1.0f);
         float tableHeight = bbox_max.z - bbox_min.z;
         float tableWidth = bbox_max.x - bbox_min.x;
-        float tableDepth = bbox_max.y - bbox_min.y;
-
-        // Cálculo da altura da lâmpada
-        bbox_min = g_VirtualScene["lightbulb_01"].bbox_min;
-        bbox_max = g_VirtualScene["lightbulb_01"].bbox_max;
-        glUniform4f(g_bbox_min_uniform, bbox_min.x, bbox_min.y, bbox_min.z, 1.0f);
-        glUniform4f(g_bbox_max_uniform, bbox_max.x, bbox_max.y, bbox_max.z, 1.0f);
-        float lightBulbHeight = bbox_max[1] - bbox_min[1];
 
         PushMatrix(model);
             // Posição da altura dos circuitos. 0.025 é por conta da altura da mesa corresponder à medida entre a base e a borda da mesa, que é mais alta que a parte onde os objetos estarão posicionados
@@ -599,30 +596,41 @@ int main(int argc, char* argv[])
         // @TODO: os else if serão refatorados!
         // ================================================================
         // Projeta um ray casting em coord. do mundo a partir das coord. do mouse
-        glm::vec3 mousePoint = MouseRayCasting(projectionMatrix, viewMatrix);
-        glm::vec3 rayVec = glm::normalize(glm::vec4(mousePoint, 1.0f));
-
-        std::cout << "Mouse point: " << mousePoint.x << " " << mousePoint.y << " " << mousePoint.z << std::endl;
-        std::cout << "Ray vector: " << rayVec.x << " " << rayVec.y << " " << rayVec.z << std::endl;
-
-        // if (CubeIntersectsCube(wirePlaneBbox,wireBulbBbox)){
+        g_rayPoint = MouseRayCasting(projectionMatrix, viewMatrix);
+        glm::vec3 rayVec = glm::normalize(glm::vec4(g_rayPoint, 1.0f));
+        // if (AABBIntersectsAABB(wirePlaneBbox,wireBulbBbox)){
         //     std::cout << "Plano de Wire e Lâmpada do Wire intersectam" << std::endl;
         // } 
-        // else if (CubeIntersectsCube(wirePlaneBbox,andBulbBbox)){
+        // else if (AABBIntersectsAABB(wirePlaneBbox,andBulbBbox)){
         //     std::cout << "Plano de Wire e Lâmpada do AND intersectam" << std::endl;
         // }
  
-        if (RayIntersectsCube(camera_position_c, rayVec, wireBulbBbox)){
+        if (RayIntersectsAABB(camera_position_c, rayVec, wireBulbBbox)){
             std::cout << "!!Ray intersecta a lâmpada do Wire" << std::endl;
         }
-        if (RayIntersectsCube(camera_position_c, rayVec, andInput1Bbox)){
+        if (RayIntersectsAABB(camera_position_c, rayVec, andInput1Bbox)){
             std::cout << "!!Ray intersecta o input 2 do AND" << std::endl;
         }
-        if (RayIntersectsCube(camera_position_c, rayVec, andInput2Bbox)){
+        if (RayIntersectsAABB(camera_position_c, rayVec, andInput2Bbox)){
             std::cout << "!!Ray intersecta o input 1 do AND" << std::endl;
         }   
-        if (RayIntersectsCube(camera_position_c, rayVec, tableBbox)){
+        if (RayIntersectsAABB(camera_position_c, rayVec, tableBbox)){
             std::cout << "!!Ray intersecta a mesa!!" << std::endl;
+        }
+        if (RayIntersectsAABB(camera_position_c, rayVec, wirePlaneBbox)){
+            std::cout << "!!Ray intersecta o plano!!" << std::endl;
+        }
+        // Define a hitsphere da câmera
+        Sphere cameraSphere = {camera_position_c, 0.2f};
+
+        // Aumenta a AABB da mesa em y para detectar a colisão com a hitsphere da câmera
+        tableBbox.max.y += 100.0f;
+
+        if (SphereIntersectsAABB(cameraSphere, tableBbox)){
+            std::cout << "Camera intersecta a mesa!!" << std::endl;
+            isTableCollision = true;
+        } else {
+            isTableCollision = false;
         }
 
         glUniformMatrix4fv(g_view_uniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
@@ -633,13 +641,14 @@ int main(int argc, char* argv[])
         // glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         // glUniform1i(g_object_id_uniform, PLANE_AND);
         // DrawVirtualObject("the_plane");
-
-        // Imprimimos na tela os ângulos de Euler que controlam a rotação do
-        // terceiro cubo.
-        TextRendering_ShowEulerAngles(window);
-
         // Imprimimos na informação sobre a matriz de projeção sendo utilizada.
         TextRendering_ShowProjection(window);
+
+        // Imprimimos na tela as coordenadas do mouse
+        TextRendering_ShowMouseCoords(window);
+
+        // Imprimimos a informação sobre o ray casting
+        TextRendering_ShowRayCast(window);
 
         // Imprimimos na tela informação sobre o número de quadros renderizados
         // por segundo (frames per second).
@@ -651,11 +660,12 @@ int main(int argc, char* argv[])
         float delta_t = current_time - prev_time;
         prev_time = current_time;
 
-        // Realiza movimentação de objetos
-        if (W_key_pressed)
+        // Realiza movimentação de objetos.
+        // A flag isTableCollision é um protótipo de resolução de colisão entre a câmera e a mesa
+        if (W_key_pressed && !isTableCollision) {
             // Movimenta câmera para frente
             camera_movement += -camera_w * speed * delta_t;
-
+        }
         if (A_key_pressed)
             // Movimenta câmera para esquerda
             camera_movement += -camera_u * speed * delta_t;

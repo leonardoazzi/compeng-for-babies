@@ -9,26 +9,32 @@
  * @param b O segundo cubo AABB.
  * @return True se os cubos AABB se intersectam, false caso contrário.
  */
-bool CubeIntersectsCube(AABB a, AABB b){
+bool AABBIntersectsAABB(AABB a, AABB b){
     int intersectedAxes = 0;
 
     if (a.min.x <= b.max.x && a.max.x >= b.min.x) intersectedAxes++;
     if (a.min.y <= b.max.y && a.max.y >= b.min.y) intersectedAxes++;
     if (a.min.z <= b.max.z && a.max.z >= b.min.z) intersectedAxes++;
 
-    std::cout << "Eixos com intersecção: em " << intersectedAxes << std::endl;
-
     return intersectedAxes == 3;
 }
 
 /**
+ * Verifica se um raio intersecta com um cubo.
+ *
+ * @param rayOrigin O ponto de origem do raio.
+ * @param rayDirection A direção do raio.
+ * @param cube O eixo-alinhado bounding box (AABB) que representa o cubo.
+ * @return True se o raio intersectar com o cubo, false caso contrário.
+ * 
+ * Adaptado de: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection.html
+ * Referência:
  * Shirley, P., Wald, I., Marrs, A. (2021). Ray Axis-Aligned Bounding Box Intersection. 
  * In: Marrs, A., Shirley, P., Wald, I. (eds) Ray Tracing Gems II. Apress, Berkeley, CA. 
  * https://doi.org/10.1007/978-1-4842-7185-8_2
+ * 
  */
-
-// Adaptado de: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection.html
-bool RayIntersectsCube(glm::vec4 rayOrigin, glm::vec3 rayDirection, AABB cube){
+bool RayIntersectsAABB(glm::vec4 rayOrigin, glm::vec3 rayDirection, AABB cube){
     float tmin_x = (cube.min.x - rayOrigin.x) / rayDirection.x;
     float tmax_x = (cube.max.x - rayOrigin.x) / rayDirection.x;
 
@@ -64,6 +70,34 @@ bool RayIntersectsCube(glm::vec4 rayOrigin, glm::vec3 rayDirection, AABB cube){
 }
 
 /**
+ * Verifica se uma esfera intersecta uma AABB (Axis-Aligned Bounding Box).
+ * Referência: https://learnopengl.com/In-Practice/2D-Game/Collisions/Collision-detection
+ * 
+ * @param sphere A esfera a ser verificada, definida por seu centro e seu raio.
+ * @param aabb O AABB a ser testada.
+ * @return true se houver interseção, false caso contrário.
+ */
+bool SphereIntersectsAABB(Sphere sphere, AABB aabb) {
+    float distance = 0.0f;
+
+    // Calcula o ponto mais próximo da AABB ao centro da esfera
+    for (int i = 0; i < 3; ++i) {
+        float min = aabb.min[i];
+        float max = aabb.max[i];
+        float center = sphere.center[i];
+
+        if (center < min) {
+            distance += (min - center) * (min - center);
+        } else if (center > max) {
+            distance += (center - max) * (center - max);
+        }
+    }
+
+    // Verifica se a distância ao quadrado é menor ou igual ao raio da esfera ao quadrado
+    return distance <= (sphere.radius * sphere.radius);
+}
+
+/**
  * @brief Calcula o axis-aligned bounding box (AABB) para um objeto da cena em coordenadas de mundo.
  * 
  * @param obj O objeto da cena, que contém em sua struct uma AABB em coordenadas de modelo.
@@ -75,11 +109,10 @@ AABB GetWorldAABB(SceneObject obj, glm::mat4 model){
     glm::vec4 min = model * glm::vec4(obj.bbox_min.x, obj.bbox_min.y, obj.bbox_min.z, 1.0f);
     glm::vec4 max = model * glm::vec4(obj.bbox_max.x, obj.bbox_max.y, obj.bbox_max.z, 1.0f);
 
-    // @DEBUG
-    // std::cout << "BBox Local Min: " << obj.bbox_min.x << " " << obj.bbox_min.y << " " << obj.bbox_min.z << std::endl;
-    // std::cout << "BBox Local Max: " << obj.bbox_max.x << " " << obj.bbox_max.y << " " << obj.bbox_max.z << std::endl;
-    std::cout << "BBox World Min: " << min.x << " " << min.y << " " << min.z << std::endl;
-    std::cout << "BBox World Max: " << max.x << " " << max.y << " " << max.z << std::endl;
+    // Quando há rotação, os valores mínimos e máximos dos pontos da bounding box podem ser corrigidos.
+    for (int i = 0; i < 3; i++) {
+        if (min[i] > max[i]) std::swap(min[i], max[i]);
+    }
 
     // Retorna a bounding box em coordenadas de  mundo
     return AABB{min, max}; 
@@ -111,9 +144,6 @@ glm::vec3 MouseRayCasting(glm::mat4 projectionMatrix, glm::mat4 viewMatrix){
     // Normaliza o vetor de coordenadas do mouse
     glm::vec3 ray_world = glm::vec3(glm::inverse(viewMatrix) * ray_camera);
     ray_world = glm::normalize(ray_world);
-
-    // @DEBUG
-    // std::cout << "Ray World: " << ray_world.x << " " << ray_world.y << " " << ray_world.z << std::endl;
 
     return ray_world;
 

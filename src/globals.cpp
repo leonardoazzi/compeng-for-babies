@@ -29,7 +29,7 @@ float g_TorsoPositionY = 0.0f;
 
 bool g_UsePerspectiveProjection = true;
 
-bool g_ShowInfoText = true;
+bool g_ShowInfoText = false;
 
 GLuint g_GpuProgramID = 0;
 GLint g_model_uniform;
@@ -42,3 +42,4 @@ GLint g_bbox_max_uniform;
 GLuint g_NumLoadedTextures = 0;
 
 double g_LastCursorPosX, g_LastCursorPosY;
+glm::vec3 g_rayPoint;
