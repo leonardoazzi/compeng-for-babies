@@ -1,3 +1,0 @@
-C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/build/CMakeFiles/main.dir
-C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/build/CMakeFiles/edit_cache.dir
-C:/Users/biaso/Desktop/UFRGS/semestre5/fcg/fcg-opengl/build/CMakeFiles/rebuild_cache.dir
