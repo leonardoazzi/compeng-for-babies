@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
     // Criamos uma janela do sistema operacional, com 800 colunas e 600 linhas
     // de pixels, e com título "INF01047 ...".
     GLFWwindow* window;
-    window = glfwCreateWindow(800, 600, "INF01047 - Seu Cartao - Seu Nome", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "Ribas Simulator", NULL, NULL);
     createWindow(window);
 
     setCallbacks(window);
@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
     };
 
     GameObject WireCircuit = {
-        WireCircuit.name = "Circuito WireCircuit", 
+        WireCircuit.name = "Circuito Wire", 
         WireCircuit.pos = glm::vec3(0.0f, 0.0f, 0.0f),
         WireCircuit.scale = glm::vec3(0.0f, 0.0f, 0.0f),
         WireCircuit.rotation = glm::vec3(0.0f, 0.0f, 0.0f)
@@ -329,6 +329,7 @@ int main(int argc, char* argv[])
                 model *= Matrix_Translate(WireCircuit.pos.x, WireCircuit.pos.y, WireCircuit.pos.z);
 
                 if (WireCircuit.isHovered) model *= Matrix_Rotate_Y(g_AngleY);
+                else model *= Matrix_Rotate_Y(WireCircuit.rotation.y);
                 
                 // Plano com o circuito WIRE
                 PushMatrix(model);
@@ -393,6 +394,10 @@ int main(int argc, char* argv[])
                     wirePlaneBbox
                 };
 
+                if (g_LeftMouseButtonPressed && WireCircuit.isHovered) {
+                    WireCircuit.rotation.y = g_AngleY;
+                }
+
             PopMatrix(model);
 
             // ----------------------------------------------------------------------------------------------------------
@@ -404,8 +409,9 @@ int main(int argc, char* argv[])
             PushMatrix(model);
 
                 model *= Matrix_Translate(NotCircuit.pos.x, NotCircuit.pos.y, NotCircuit.pos.z);
-                
+
                 if (NotCircuit.isHovered) model *= Matrix_Rotate_Y(g_AngleY);
+                else model *= Matrix_Rotate_Y(NotCircuit.rotation.y);
 
                 // Plano com o circuito NOT
                 PushMatrix(model);
@@ -500,6 +506,10 @@ int main(int argc, char* argv[])
                     notCubeBbox,
                     notPlaneBbox
                 };
+
+                if (g_LeftMouseButtonPressed && NotCircuit.isHovered) {
+                    NotCircuit.rotation.y = g_AngleY;
+                }
                 
             PopMatrix(model);
 
@@ -514,6 +524,7 @@ int main(int argc, char* argv[])
                 model *= Matrix_Translate(AndCircuit.pos.x, AndCircuit.pos.y, AndCircuit.pos.z);
 
                 if (AndCircuit.isHovered) model *= Matrix_Rotate_Y(g_AngleY);
+                else model *= Matrix_Rotate_Y(AndCircuit.rotation.y);
 
                 // Plano com o circuito AND
                 PushMatrix(model);
@@ -676,6 +687,10 @@ int main(int argc, char* argv[])
             andInput2Bbox,
             andBbox
         };
+
+        if (g_LeftMouseButtonPressed && AndCircuit.isHovered) {
+            AndCircuit.rotation.y = g_AngleY;
+        }
 
         PopMatrix(model);
 
