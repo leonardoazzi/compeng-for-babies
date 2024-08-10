@@ -1,5 +1,6 @@
 #include "collisions.h"
 #include <iostream>
+#include <vector>
 
 /**
  * @brief Verifica se dois cubos representados por AABBs se intersectam nos eixos x, y e z.
@@ -98,13 +99,39 @@ bool SphereIntersectsAABB(Sphere sphere, AABB aabb) {
 }
 
 /**
+ * @brief Calcula a bounding box de um grupo de objetos da cena.
+ * 
+ * @param objects Vetor de objetos da cena.
+ * @return A bounding box do grupo de objetos.
+ */
+AABB FindGroupBbox(std::vector<AABB> objects)
+{
+
+    float FLT_MAX = 3.402823466e+38F;
+
+    // Inicializa a bounding box do grupo com valores extremos
+    glm::vec3 min = glm::vec3(FLT_MAX, FLT_MAX, FLT_MAX);
+    glm::vec3 max = glm::vec3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+    // Para cada objeto na cena, atualiza a bounding box do grupo
+    for (AABB obj : objects) {
+        min = glm::min(min, obj.min);
+        max = glm::max(max, obj.max);
+    }
+
+    return AABB{min, max};
+}
+
+/**
  * @brief Calcula o axis-aligned bounding box (AABB) para um objeto da cena em coordenadas de mundo.
  * 
  * @param obj O objeto da cena, que contém em sua struct uma AABB em coordenadas de modelo.
  * @param model A matriz modelo que representa as transformações geométricas necessárias para o objeto estar em coordenadas de mundo.
  * @return A AABB do objeto em coordenadas de mundo.
  */
-AABB GetWorldAABB(SceneObject obj, glm::mat4 model){
+AABB GetWorldAABB(SceneObject obj, glm::mat4 model)
+{
+
     // Dada uma matriz model, transforma as coordenadas locais da AABB do objeto para coordenadas de mundo.
     glm::vec4 min = model * glm::vec4(obj.bbox_min.x, obj.bbox_min.y, obj.bbox_min.z, 1.0f);
     glm::vec4 max = model * glm::vec4(obj.bbox_max.x, obj.bbox_max.y, obj.bbox_max.z, 1.0f);
@@ -113,7 +140,7 @@ AABB GetWorldAABB(SceneObject obj, glm::mat4 model){
     for (int i = 0; i < 3; i++) {
         if (min[i] > max[i]) std::swap(min[i], max[i]);
     }
-
+    
     // Retorna a bounding box em coordenadas de  mundo
     return AABB{min, max}; 
 }
