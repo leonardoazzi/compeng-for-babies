@@ -101,6 +101,16 @@ struct AABB {
     glm::vec3 max;
 };
 
+struct GameObject {
+    std::string name;
+    glm::vec3 pos;
+    glm::vec3 scale;
+    glm::vec3 rotation;
+    SceneObject sceneObject;
+    bool isHovered;
+    AABB bbox;
+};
+
 /**
  * @brief Struct que representa uma esfera.
  * 

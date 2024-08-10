@@ -43,3 +43,6 @@ GLuint g_NumLoadedTextures = 0;
 
 double g_LastCursorPosX, g_LastCursorPosY;
 glm::vec3 g_rayPoint;
+
+bool isInput1Digit0 = true;
+bool isInput2Digit0 = true;

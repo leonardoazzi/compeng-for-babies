@@ -1,8 +1,6 @@
 #include "callback.h"
 #include <iostream>
 
-bool isInput1Digit0 = true;
-bool isInput2Digit0 = true;
 
 // Variáveis de estado para as teclas de movimentação da câmera
 bool W_key_pressed = false;
