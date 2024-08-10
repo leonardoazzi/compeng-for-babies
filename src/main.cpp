@@ -382,6 +382,7 @@ int main(int argc, char* argv[])
                             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                             glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
                             DrawVirtualObject("the_plane");
+                            AABB wireInputBbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
                         PopMatrix(model);
 
                 PopMatrix(model);
@@ -467,6 +468,7 @@ int main(int argc, char* argv[])
                         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                         glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
                         DrawVirtualObject("the_plane");
+                        AABB notInputBbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
                     PopMatrix(model);
 
                     PushMatrix(model);
@@ -605,7 +607,7 @@ int main(int argc, char* argv[])
                             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                             glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
                             DrawVirtualObject("the_plane");
-                            AABB andInput1Bbox = GetWorldAABB(g_VirtualScene["Cube"], model);
+                            AABB andInput1Bbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
                         PopMatrix(model);
                         
                     PopMatrix(model);
@@ -681,35 +683,35 @@ int main(int argc, char* argv[])
         model = Matrix_Translate(0.0f,0.0f,0.0f) * Matrix_Scale(10.0f,1.0f,10.0f);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
         glUniform1i(g_object_id_uniform, PLANE_GROUND);
-        
         DrawVirtualObject("the_plane");
-        // ================================================================
-        // Testes de interseção entre objetos
-        // @TODO: os else if serão refatorados!
-        // ================================================================
+
         // Projeta um ray casting em coord. do mundo a partir das coord. do mouse
         g_rayPoint = MouseRayCasting(projectionMatrix, viewMatrix);
         glm::vec3 rayVec = glm::normalize(glm::vec4(g_rayPoint, 1.0f));
+
+        bool wireInputClick = RayIntersectsAABB(camera_position_c, rayVec, wireInputBbox);
+        bool notInputClick = RayIntersectsAABB(camera_position_c, rayVec, notInputBbox);
+        bool andInput1Click = RayIntersectsAABB(camera_position_c, rayVec, andInput1Bbox);
+        bool andInput2Click = RayIntersectsAABB(camera_position_c, rayVec, andInput2Bbox);
  
-        if (g_LeftMouseButtonPressed && RayIntersectsAABB(camera_position_c, rayVec, andInput1Bbox)){
+        // Testa o clique do mouse para alterar o input dos circuitos
+        if (g_LeftMouseButtonPressed && (wireInputClick || notInputClick || andInput1Click)){
             isInput1Digit0 = !isInput1Digit0;
             reLoadShaders();
             g_LeftMouseButtonPressed = false;
         }
-        if (g_LeftMouseButtonPressed && RayIntersectsAABB(camera_position_c, rayVec, andInput2Bbox)){
+        if (g_LeftMouseButtonPressed && andInput2Click){
             isInput2Digit0 = !isInput2Digit0;
             reLoadShaders();
             g_LeftMouseButtonPressed = false;
         }
 
-        // if (RayIntersectsAABB(camera_position_c, rayVec, tableBbox)){
-        //     std::cout << "!!Ray intersecta a mesa!!" << std::endl;
-        // }
-
+        // Calcula a AABB do conjunto dos objetos de cada circuito
         AndCircuit.bbox = FindGroupBbox(andCircuitObjects);
         WireCircuit.bbox = FindGroupBbox(wireCircuitObjects);
         NotCircuit.bbox = FindGroupBbox(notCircuitObjects);
 
+        // Teste de hover sobre o conjunto de cada circuito
         AndCircuit.isHovered = RayIntersectsAABB(camera_position_c, rayVec, AndCircuit.bbox);
         WireCircuit.isHovered = RayIntersectsAABB(camera_position_c, rayVec, WireCircuit.bbox);
         NotCircuit.isHovered = RayIntersectsAABB(camera_position_c, rayVec, NotCircuit.bbox);
