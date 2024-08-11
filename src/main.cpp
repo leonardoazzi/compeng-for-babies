@@ -5,8 +5,9 @@
 //    INF01047 Fundamentos de Computação Gráfica
 //               Prof. Eduardo Gastal
 //
-//                   LABORATÓRIO 5
-//
+//                  Trabalho final
+//             Beatriz Forneck Soviero
+//              Leonardo Azzi Martins 
 
 // Arquivos "headers" padrões de C podem ser incluídos em um
 // programa C++, sendo necessário somente adicionar o caractere
@@ -47,9 +48,9 @@ int main(int argc, char* argv[])
     configureGLFW();
 
     // Criamos uma janela do sistema operacional, com 800 colunas e 600 linhas
-    // de pixels, e com título "INF01047 ...".
+    // de pixels
     GLFWwindow* window;
-    window = glfwCreateWindow(800, 600, "Ribas Simulator", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "INF01047: Trabalho final", NULL, NULL);
     createWindow(window);
 
     setCallbacks(window);
