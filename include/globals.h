@@ -101,6 +101,18 @@ struct AABB {
     glm::vec3 max;
 };
 
+/**
+ * @brief Struct que representa uma esfera.
+ * 
+ * Contém as informações necessárias para representar uma esfera no espaço tridimensional.
+ * Ela armazena o centro da esfera e o raio da mesma.
+ */
+struct Sphere {
+    glm::vec3 center;
+    float radius;
+};
+
+
 // Abaixo definimos variáveis globais utilizadas em várias funções do código.
 
 // A cena virtual é uma lista de objetos nomeados, guardados em um dicionário
@@ -182,3 +194,5 @@ extern bool D_key_pressed;
 // Variável para modificar o tipo de câmera (look-at/free camera)
 extern bool freeCamera;
 extern bool lookatCamera;
+
+extern glm::vec3 g_rayPoint;
