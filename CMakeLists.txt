@@ -20,6 +20,7 @@ set(SOURCES
   src/textrendering.cpp
   src/window.cpp
   src/collisions.cpp
+  src/bezierCurve.cpp
 )
 
 cmake_minimum_required(VERSION 3.5.0)

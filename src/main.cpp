@@ -31,7 +31,7 @@
 // Headers locais, definidos na pasta "include/"
 #include "stackMatrix.h"
 #include "textrendering.h"
-// #include "callback.h"
+#include "bezierCurve.h"
 #include "window.h"
 #include "collisions.h"
 
@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
     // Criamos uma janela do sistema operacional, com 800 colunas e 600 linhas
     // de pixels, e com título "INF01047 ...".
     GLFWwindow* window;
-    window = glfwCreateWindow(800, 600, "INF01047 - Seu Cartao - Seu Nome", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "Computer Engineering for Babies", NULL, NULL);
     createWindow(window);
 
     setCallbacks(window);
@@ -75,6 +75,7 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/circuits/metal_grate_rusty_diff_4k.jpg"); // TextureBlocks
     LoadTextureImage("../../data/circuits/leather_red_03_coll1_4k.png"); // TextureSphere
     LoadTextureImage("../../data/circuits/and.jpg"); // TexturePlaneAnd
+    LoadTextureImage("../../data/laminate_floor_02_diff_4k.jpg"); // TextureGround
 
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     buildModel("../../data/sphere.obj");
@@ -124,6 +125,14 @@ int main(int argc, char* argv[])
     // movimento no modo câmera livre
     glm::vec4 camera_movement = glm::vec4(0.0f,0.0f,0.0f,0.0f);
 
+    // Variáveis para controle da câmera pela curva de Bezier
+    bool curvedCamera = true;
+    float t = 0.0f;
+    glm::vec3 startPoint = glm::vec3(-0.1035f, 0.6f, 3.45f);
+    glm::vec3 endPoint = glm::vec3(0.0f, 2.0f, 0.04f);
+    glm::vec3 controlPoint1 = startPoint + glm::normalize(endPoint - startPoint)* 0.3f;
+    glm::vec3 controlPoint2 = endPoint + glm::normalize(endPoint - startPoint)* 0.3f;
+
     // Ficamos em um loop infinito, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
     {
@@ -145,19 +154,40 @@ int main(int argc, char* argv[])
         // os shaders de vértice e fragmentos).
         glUseProgram(g_GpuProgramID);
 
+        if (curvedCamera) {
+            float currentTimeBezier = (float)glfwGetTime();
+            float deltaTime = currentTimeBezier - prev_time;
+            prev_time = currentTimeBezier;
+            t += deltaTime / 2.0f;
+
+            if (t >= 1.0f) {
+                t = 1.0f;
+                curvedCamera = false; // Stop the camera movement
+                camera_position_c = glm::vec4(endPoint, 1.0f);
+            }
+            else
+                camera_position_c = bezierCurve(t, startPoint, controlPoint1, controlPoint2, endPoint);
+                g_CameraDistance = sqrt(camera_position_c.x*camera_position_c.x + camera_position_c.y*camera_position_c.y + camera_position_c.z*camera_position_c.z);
+                g_CameraPhi = glm::asin(camera_position_c.y / g_CameraDistance);
+                g_CameraTheta = glm::atan(camera_position_c.x, camera_position_c.z);
+        }
+
         // Computamos a posição da câmera utilizando coordenadas esféricas.  As
         // variáveis g_CameraDistance, g_CameraPhi, e g_CameraTheta são
         // controladas pelo mouse do usuário. Veja as funções CursorPosCallback()
         // e ScrollCallback().
         // Aqui, os parâmetros irão atualizar a orientação do vetor view em relação ao
-        // ponto c 'ancorado'.
+        // ponto c 'ancorado'. 
+
         float r = g_CameraDistance;
         float y = r*sin(g_CameraPhi);
         float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
         float x = r*cos(g_CameraPhi)*sin(g_CameraTheta);
 
         // Câmera look-at
-        camera_position_c  = glm::vec4(x,y,z,1.0f); // Ponto "c", centro da câmera
+        if (curvedCamera == false){
+            camera_position_c  = glm::vec4(x,y,z,1.0f); // Ponto "c", centro da câmera
+        };
         glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
         glm::vec4 camera_view_vector = camera_lookat_l - camera_position_c; // Vetor "view", sentido para onde a câmera está virada
 
@@ -230,6 +260,7 @@ int main(int argc, char* argv[])
         #define LIGHTBULB_AND 12
         #define PLANE_AND 13
         #define BUNNY 14
+        #define GROUND 15
 
         #define PLANE_WIDTH 0.2f
         #define PLANE_HEIGHT 0.145f
@@ -238,7 +269,6 @@ int main(int argc, char* argv[])
         #define NUM_CIRCUITS 4
         #define CIRCUIT_WIDTH (0.75 * PLANE_WIDTH)
 
-   
         // Guardamos matriz model atual na pilha
         PushMatrix(model);
             // Desenhamos o modelo da mesa
@@ -602,8 +632,8 @@ int main(int argc, char* argv[])
         glm::vec3 mousePoint = MouseRayCasting(projectionMatrix, viewMatrix);
         glm::vec3 rayVec = glm::normalize(glm::vec4(mousePoint, 1.0f));
 
-        std::cout << "Mouse point: " << mousePoint.x << " " << mousePoint.y << " " << mousePoint.z << std::endl;
-        std::cout << "Ray vector: " << rayVec.x << " " << rayVec.y << " " << rayVec.z << std::endl;
+        // std::cout << "Mouse point: " << mousePoint.x << " " << mousePoint.y << " " << mousePoint.z << std::endl;
+        // std::cout << "Ray vector: " << rayVec.x << " " << rayVec.y << " " << rayVec.z << std::endl;
 
         // if (CubeIntersectsCube(wirePlaneBbox,wireBulbBbox)){
         //     std::cout << "Plano de Wire e Lâmpada do Wire intersectam" << std::endl;
@@ -629,10 +659,10 @@ int main(int argc, char* argv[])
         glUniformMatrix4fv(g_projection_uniform, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
         // Desenhamos o plano do chão
-        // model = Matrix_Translate(0.0f,-1.1f,0.0f) * Matrix_Scale(1.0f,1.0f,1.0f);
-        // glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(g_object_id_uniform, PLANE_AND);
-        // DrawVirtualObject("the_plane");
+        model = Matrix_Translate(0.0f,0.0f,0.0f) * Matrix_Scale(100.0f,100.0f,100.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, GROUND);
+        DrawVirtualObject("the_plane");
 
         // Imprimimos na tela os ângulos de Euler que controlam a rotação do
         // terceiro cubo.

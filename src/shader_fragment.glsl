@@ -35,6 +35,7 @@ uniform mat4 projection;
 #define PLANE_NOT 11
 #define LIGHTBULB_AND 12
 #define PLANE_AND 13
+#define GROUND 15
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -54,6 +55,7 @@ uniform sampler2D TexturePlaneNot;
 uniform sampler2D TextureSphere;
 uniform sampler2D TexturePlaneAnd;
 uniform sampler2D TextureBlocks;
+uniform sampler2D TextureGround;
 
 uniform bool u_isInput1Digit0;
 uniform bool u_isInput2Digit0;
@@ -200,6 +202,12 @@ void main()
     else if (object_id == DISPLAY) // Blinn-Phong e Phong shading
     {
         Kd = texture(TextureDisplay, texcoords).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
+    }
+    else if (object_id == GROUND) // Blinn-Phong e Phong shading
+    {
+        Kd = texture(TextureGround, texcoords).rgb;
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
     }
