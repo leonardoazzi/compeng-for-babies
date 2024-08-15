@@ -5,8 +5,9 @@
 //    INF01047 Fundamentos de Computação Gráfica
 //               Prof. Eduardo Gastal
 //
-//                   LABORATÓRIO 5
-//
+//                  Trabalho final
+//             Beatriz Forneck Soviero
+//              Leonardo Azzi Martins 
 
 // Arquivos "headers" padrões de C podem ser incluídos em um
 // programa C++, sendo necessário somente adicionar o caractere
@@ -47,9 +48,9 @@ int main(int argc, char* argv[])
     configureGLFW();
 
     // Criamos uma janela do sistema operacional, com 800 colunas e 600 linhas
-    // de pixels, e com título "INF01047 ...".
+    // de pixels
     GLFWwindow* window;
-    window = glfwCreateWindow(800, 600, "INF01047 - Seu Cartao - Seu Nome", NULL, NULL);
+    window = glfwCreateWindow(800, 600, "INF01047: Trabalho final", NULL, NULL);
     createWindow(window);
 
     setCallbacks(window);
@@ -127,9 +128,46 @@ int main(int argc, char* argv[])
     // Inicializa a flag de colisão com a mesa
     bool isTableCollision = false;
 
+    // Inicializa as informações sobre os objetos da cena
+    GameObject table = {
+        table.name = "mesa",
+        table.pos = glm::vec3(0.0f, 0.0f, 0.0f),
+        table.scale = glm::vec3(0.0f, 0.0f, 0.0f),
+        table.rotation = glm::vec3(0.0f, 0.0f, 0.0f),
+        table.sceneObject = g_VirtualScene["table"]
+    };
+
+    GameObject WireCircuit = {
+        WireCircuit.name = "Circuito Wire", 
+        WireCircuit.pos = glm::vec3(0.0f, 0.0f, 0.0f),
+        WireCircuit.scale = glm::vec3(0.0f, 0.0f, 0.0f),
+        WireCircuit.rotation = glm::vec3(0.0f, 0.0f, 0.0f)
+    };
+
+    GameObject AndCircuit = {
+        AndCircuit.name = "Circuito AND", 
+        AndCircuit.pos = glm::vec3(0.0f, 0.0f, 0.0f),
+        AndCircuit.scale = glm::vec3(0.0f, 0.0f, 0.0f),
+        AndCircuit.rotation = glm::vec3(0.0f, 0.0f, 0.0f),
+    };
+
+    GameObject NotCircuit = {
+        NotCircuit.name = "Circuito NOT", 
+        NotCircuit.pos = glm::vec3(0.0f, 0.0f, 0.0f),
+        NotCircuit.scale = glm::vec3(0.0f, 0.0f, 0.0f),
+        NotCircuit.rotation = glm::vec3(0.0f, 0.0f, 0.0f),
+    };
+
     // Ficamos em um loop infinito, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
     {
+        // Obtém o tamanho atual da janela, para renderização
+        int screenWidth, screenHeight;
+        glfwGetWindowSize(window, &screenWidth, &screenHeight);
+        g_ScreenWidth = static_cast<float>(screenWidth);
+        g_ScreenHeight = static_cast<float>(screenHeight);
+        g_ScreenRatio = g_ScreenWidth / g_ScreenHeight;
+
         // Aqui executamos as operações de renderização
 
         // Definimos a cor do "fundo" do framebuffer como branco.  Tal cor é
@@ -233,7 +271,7 @@ int main(int argc, char* argv[])
         #define PLANE_NOT 11
         #define LIGHTBULB_AND 12
         #define PLANE_AND 13
-        #define BUNNY 14
+        #define PLANE_GROUND 14
 
         #define PLANE_WIDTH 0.2f
         #define PLANE_HEIGHT 0.145f
@@ -242,20 +280,22 @@ int main(int argc, char* argv[])
         #define NUM_CIRCUITS 4
         #define CIRCUIT_WIDTH (0.75 * PLANE_WIDTH)
 
-   
+
+        // ----------------------------------------------------------------------------------------------------------
+        // 0 - TABLE
+        // ----------------------------------------------------------------------------------------------------------
         // Guardamos matriz model atual na pilha
         PushMatrix(model);
 
             // Desenhamos o modelo da mesa
             model *= Matrix_Rotate_Z(M_PI/2.0f)
-                * Matrix_Rotate_X(M_PI/2.0f)
-                * Matrix_Rotate_Y(M_PI/2.0f);
-                // * Matrix_Scale(3.2f,3.2f,3.2f);
+                    * Matrix_Rotate_X(M_PI/2.0f)
+                    * Matrix_Rotate_Y(M_PI/2.0f);
             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
             glUniform1i(g_object_id_uniform, TABLE);
             DrawVirtualObject("table");
 
-            AABB tableBbox = GetWorldAABB(g_VirtualScene["table"], model);
+            table.bbox = GetWorldAABB(g_VirtualScene["table"], model);
 
         PopMatrix(model);
 
@@ -271,24 +311,33 @@ int main(int argc, char* argv[])
         float tableHeight = bbox_max.z - bbox_min.z;
         float tableWidth = bbox_max.x - bbox_min.x;
 
+        // ----------------------------------------------------------------------------------------------------------
+        // CIRCUITOS
+        // ----------------------------------------------------------------------------------------------------------
         PushMatrix(model);
             // Posição da altura dos circuitos. 0.025 é por conta da altura da mesa corresponder à medida entre a base e a borda da mesa, que é mais alta que a parte onde os objetos estarão posicionados
             model = Matrix_Translate(0.0f, tableHeight - 0.025f, 0.0f);
 
+            // ----------------------------------------------------------------------------------------------------------
             // 1 - WIRE
+            // ----------------------------------------------------------------------------------------------------------     
+            
+            WireCircuit.pos.x = - tableWidth / NUM_CIRCUITS - 0.15f;
 
             // Desenhamos o circuito WIRE
             PushMatrix(model);
 
-                model *= Matrix_Translate(- tableWidth / NUM_CIRCUITS - 0.15f, 0.0f, 0.0f);
+                model *= Matrix_Translate(WireCircuit.pos.x, WireCircuit.pos.y, WireCircuit.pos.z);
 
+                if (WireCircuit.isHovered) model *= Matrix_Rotate_Y(g_AngleY);
+                else model *= Matrix_Rotate_Y(WireCircuit.rotation.y);
+                
                 // Plano com o circuito WIRE
                 PushMatrix(model);
                     model *= Matrix_Scale(PLANE_WIDTH, 1.0f, PLANE_HEIGHT);
                     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                     glUniform1i(g_object_id_uniform, PLANE_WIRE);
                     DrawVirtualObject("the_plane");
-
                     AABB wirePlaneBbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
 
                 PopMatrix(model);
@@ -325,6 +374,7 @@ int main(int argc, char* argv[])
                             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                             glUniform1i(g_object_id_uniform, DISPLAY);
                             DrawVirtualObject("Cube");
+                            AABB wireCubeBbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
                         PopMatrix(model);
 
                         PushMatrix(model);
@@ -334,18 +384,35 @@ int main(int argc, char* argv[])
                             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                             glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
                             DrawVirtualObject("the_plane");
+                            AABB wireInputBbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
                         PopMatrix(model);
 
                 PopMatrix(model);
 
+                std::vector<AABB> wireCircuitObjects = {
+                    wireBulbBbox,
+                    wireCubeBbox,
+                    wirePlaneBbox
+                };
+
+                if (g_LeftMouseButtonPressed && WireCircuit.isHovered) {
+                    WireCircuit.rotation.y = g_AngleY;
+                }
+
             PopMatrix(model);
 
+            // ----------------------------------------------------------------------------------------------------------
             // 2 - NOT
+            // ----------------------------------------------------------------------------------------------------------
+            NotCircuit.pos.x = - (3 / NUM_CIRCUITS) * tableWidth - 0.15f;
 
             // Desenhamos o circuito NOT
             PushMatrix(model);
 
-                model *= Matrix_Translate(- (3 / NUM_CIRCUITS) * tableWidth - 0.15f, 0.0f, 0.0f);
+                model *= Matrix_Translate(NotCircuit.pos.x, NotCircuit.pos.y, NotCircuit.pos.z);
+
+                if (NotCircuit.isHovered) model *= Matrix_Rotate_Y(g_AngleY);
+                else model *= Matrix_Rotate_Y(NotCircuit.rotation.y);
 
                 // Plano com o circuito NOT
                 PushMatrix(model);
@@ -354,6 +421,7 @@ int main(int argc, char* argv[])
                     glUniform1i(g_object_id_uniform, PLANE_NOT);
 
                     DrawVirtualObject("the_plane");
+                    AABB notPlaneBbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
                 PopMatrix(model);
 
                 PushMatrix(model);
@@ -362,6 +430,7 @@ int main(int argc, char* argv[])
                     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                     glUniform1i(g_object_id_uniform, LIGHTBULB_NOT);
                     DrawVirtualObject("lightbulb_01");
+                    AABB notBulbBbox = GetWorldAABB(g_VirtualScene["lightbulb_01"], model);
                 PopMatrix(model);
 
                 PushMatrix(model);
@@ -396,6 +465,7 @@ int main(int argc, char* argv[])
                         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                         glUniform1i(g_object_id_uniform, DISPLAY);
                         DrawVirtualObject("Cube");
+                        AABB notCubeBbox = GetWorldAABB(g_VirtualScene["Cube"], model);
                     PopMatrix(model);
 
                     PushMatrix(model);
@@ -405,6 +475,7 @@ int main(int argc, char* argv[])
                         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                         glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
                         DrawVirtualObject("the_plane");
+                        AABB notInputBbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
                     PopMatrix(model);
 
                     PushMatrix(model);
@@ -415,6 +486,7 @@ int main(int argc, char* argv[])
                         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                         glUniform1i(g_object_id_uniform, NOT);
                         DrawVirtualObject("Not");
+                        AABB notBbox = GetWorldAABB(g_VirtualScene["Not"], model);
                     PopMatrix(model);
 
                     PushMatrix(model);
@@ -428,14 +500,32 @@ int main(int argc, char* argv[])
                     PopMatrix(model);
 
                 PopMatrix(model);
+
+                std::vector<AABB> notCircuitObjects = {
+                    notBbox,
+                    notBulbBbox,
+                    notCubeBbox,
+                    notPlaneBbox
+                };
+
+                if (g_LeftMouseButtonPressed && NotCircuit.isHovered) {
+                    NotCircuit.rotation.y = g_AngleY;
+                }
+                
             PopMatrix(model);
 
+            // ----------------------------------------------------------------------------------------------------------
             // 3 - AND
-
+            // ----------------------------------------------------------------------------------------------------------
+            AndCircuit.pos.x = tableWidth / NUM_CIRCUITS - 0.15f;
+            
             // Desenhamos o circuito AND
             PushMatrix(model);
 
-                model *= Matrix_Translate( tableWidth / NUM_CIRCUITS - 0.15f, 0.0f, 0.0f);
+                model *= Matrix_Translate(AndCircuit.pos.x, AndCircuit.pos.y, AndCircuit.pos.z);
+
+                if (AndCircuit.isHovered) model *= Matrix_Rotate_Y(g_AngleY);
+                else model *= Matrix_Rotate_Y(AndCircuit.rotation.y);
 
                 // Plano com o circuito AND
                 PushMatrix(model);
@@ -443,6 +533,7 @@ int main(int argc, char* argv[])
                     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                     glUniform1i(g_object_id_uniform, PLANE_AND);
                     DrawVirtualObject("the_plane");
+                    AABB andPlaneBbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
                 PopMatrix(model);
 
                 PushMatrix(model);
@@ -451,6 +542,7 @@ int main(int argc, char* argv[])
                     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                     glUniform1i(g_object_id_uniform, LIGHTBULB_AND);
                     DrawVirtualObject("lightbulb_01");
+                    AABB andBulbBbox = GetWorldAABB(g_VirtualScene["lightbulb_01"], model);
 
                 PopMatrix(model);
 
@@ -527,8 +619,7 @@ int main(int argc, char* argv[])
                             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                             glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
                             DrawVirtualObject("the_plane");
-
-                            AABB andInput1Bbox = GetWorldAABB(g_VirtualScene["Cube"], model);
+                            AABB andInput1Bbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
                         PopMatrix(model);
                         
                     PopMatrix(model);
@@ -569,7 +660,6 @@ int main(int argc, char* argv[])
                             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                             glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
                             DrawVirtualObject("the_plane");
-
                             AABB andInput2Bbox = GetWorldAABB(g_VirtualScene["Cube"], model);
                         PopMatrix(model);
                         
@@ -585,62 +675,74 @@ int main(int argc, char* argv[])
                     glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
                     glUniform1i(g_object_id_uniform, AND);
                     DrawVirtualObject("and");
-                PopMatrix(model);
+                    AABB andBbox = GetWorldAABB(g_VirtualScene["and"], model);
 
+                PopMatrix(model);
+            
             PopMatrix(model);
+
+        std::vector<AABB> andCircuitObjects = {
+            andPlaneBbox,
+            andBulbBbox,
+            andInput1Bbox,
+            andInput2Bbox,
+            andBbox
+        };
+
+        if (g_LeftMouseButtonPressed && AndCircuit.isHovered) {
+            AndCircuit.rotation.y = g_AngleY;
+        }
 
         PopMatrix(model);
 
-        // ================================================================
-        // Testes de interseção entre objetos
-        // @TODO: os else if serão refatorados!
-        // ================================================================
+        //Desenhamos o plano do chão
+        model = Matrix_Translate(0.0f,0.0f,0.0f) * Matrix_Scale(10.0f,1.0f,10.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, PLANE_GROUND);
+        DrawVirtualObject("the_plane");
+
         // Projeta um ray casting em coord. do mundo a partir das coord. do mouse
         g_rayPoint = MouseRayCasting(projectionMatrix, viewMatrix);
         glm::vec3 rayVec = glm::normalize(glm::vec4(g_rayPoint, 1.0f));
-        // if (AABBIntersectsAABB(wirePlaneBbox,wireBulbBbox)){
-        //     std::cout << "Plano de Wire e Lâmpada do Wire intersectam" << std::endl;
-        // } 
-        // else if (AABBIntersectsAABB(wirePlaneBbox,andBulbBbox)){
-        //     std::cout << "Plano de Wire e Lâmpada do AND intersectam" << std::endl;
-        // }
+
+        bool wireInputClick = RayIntersectsAABB(camera_position_c, rayVec, wireInputBbox);
+        bool notInputClick = RayIntersectsAABB(camera_position_c, rayVec, notInputBbox);
+        bool andInput1Click = RayIntersectsAABB(camera_position_c, rayVec, andInput1Bbox);
+        bool andInput2Click = RayIntersectsAABB(camera_position_c, rayVec, andInput2Bbox);
  
-        if (RayIntersectsAABB(camera_position_c, rayVec, wireBulbBbox)){
-            std::cout << "!!Ray intersecta a lâmpada do Wire" << std::endl;
+        // Testa o clique do mouse para alterar o input dos circuitos
+        if (g_LeftMouseButtonPressed && (wireInputClick || notInputClick || andInput1Click)){
+            isInput1Digit0 = !isInput1Digit0;
+            reLoadShaders();
+            g_LeftMouseButtonPressed = false;
         }
-        if (RayIntersectsAABB(camera_position_c, rayVec, andInput1Bbox)){
-            std::cout << "!!Ray intersecta o input 2 do AND" << std::endl;
+        if (g_LeftMouseButtonPressed && andInput2Click){
+            isInput2Digit0 = !isInput2Digit0;
+            reLoadShaders();
+            g_LeftMouseButtonPressed = false;
         }
-        if (RayIntersectsAABB(camera_position_c, rayVec, andInput2Bbox)){
-            std::cout << "!!Ray intersecta o input 1 do AND" << std::endl;
-        }   
-        if (RayIntersectsAABB(camera_position_c, rayVec, tableBbox)){
-            std::cout << "!!Ray intersecta a mesa!!" << std::endl;
-        }
-        if (RayIntersectsAABB(camera_position_c, rayVec, wirePlaneBbox)){
-            std::cout << "!!Ray intersecta o plano!!" << std::endl;
-        }
+
+        // Calcula a AABB do conjunto dos objetos de cada circuito
+        AndCircuit.bbox = FindGroupBbox(andCircuitObjects);
+        WireCircuit.bbox = FindGroupBbox(wireCircuitObjects);
+        NotCircuit.bbox = FindGroupBbox(notCircuitObjects);
+
+        // Teste de hover sobre o conjunto de cada circuito
+        AndCircuit.isHovered = RayIntersectsAABB(camera_position_c, rayVec, AndCircuit.bbox);
+        WireCircuit.isHovered = RayIntersectsAABB(camera_position_c, rayVec, WireCircuit.bbox);
+        NotCircuit.isHovered = RayIntersectsAABB(camera_position_c, rayVec, NotCircuit.bbox);
+
         // Define a hitsphere da câmera
         Sphere cameraSphere = {camera_position_c, 0.2f};
 
         // Aumenta a AABB da mesa em y para detectar a colisão com a hitsphere da câmera
-        tableBbox.max.y += 100.0f;
+        table.bbox.max.y += 100.0f;
 
-        if (SphereIntersectsAABB(cameraSphere, tableBbox)){
-            std::cout << "Camera intersecta a mesa!!" << std::endl;
-            isTableCollision = true;
-        } else {
-            isTableCollision = false;
-        }
+        isTableCollision = SphereIntersectsAABB(cameraSphere, table.bbox);
 
         glUniformMatrix4fv(g_view_uniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
         glUniformMatrix4fv(g_projection_uniform, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
 
-        // Desenhamos o plano do chão
-        // model = Matrix_Translate(0.0f,-1.1f,0.0f) * Matrix_Scale(1.0f,1.0f,1.0f);
-        // glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        // glUniform1i(g_object_id_uniform, PLANE_AND);
-        // DrawVirtualObject("the_plane");
         // Imprimimos na informação sobre a matriz de projeção sendo utilizada.
         TextRendering_ShowProjection(window);
 

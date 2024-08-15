@@ -1,8 +1,6 @@
 #include "callback.h"
 #include <iostream>
 
-bool isInput1Digit0 = true;
-bool isInput2Digit0 = true;
 
 // Variáveis de estado para as teclas de movimentação da câmera
 bool W_key_pressed = false;
@@ -63,7 +61,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     //   Se apertar tecla Z       então g_AngleZ += delta;
     //   Se apertar tecla shift+Z então g_AngleZ -= delta;
 
-    float delta = 3.141592 / 16; // 22.5 graus, em radianos.
+    float delta = 3.141592 / 2; // pi/2
 
     if (key == GLFW_KEY_X && action == GLFW_PRESS)
     {

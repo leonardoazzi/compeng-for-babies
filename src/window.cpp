@@ -56,7 +56,7 @@ void setCallbacks(GLFWwindow* window) {
     // redimensionada, por consequência alterando o tamanho do "framebuffer"
     // (região de memória onde são armazenados os pixels da imagem).
     glfwSetFramebufferSizeCallback(window, FramebufferSizeCallback);
-    FramebufferSizeCallback(window, 800, 600); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.    
+    FramebufferSizeCallback(window, g_ScreenWidth, g_ScreenHeight); // Forçamos a chamada do callback acima, para definir g_ScreenRatio.    
 }
 
 void printGPUinfo() {
