@@ -35,7 +35,7 @@ uniform mat4 projection;
 #define PLANE_NOT 11
 #define LIGHTBULB_AND 12
 #define PLANE_AND 13
-#define PLANE_GROUND 14
+#define GROUND 14
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -55,6 +55,7 @@ uniform sampler2D TexturePlaneNot;
 uniform sampler2D TextureSphere;
 uniform sampler2D TexturePlaneAnd;
 uniform sampler2D TextureBlocks;
+uniform sampler2D TextureGround;
 
 uniform bool u_isInput1Digit0;
 uniform bool u_isInput2Digit0;
@@ -204,6 +205,12 @@ void main()
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
     }
+    else if (object_id == GROUND) // Blinn-Phong e Phong shading
+    {
+        Kd = texture(TextureGround, texcoords).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
+    }
     else if (object_id == INPUT1_DIGIT) // Diffuse e Phong shading
     {
         if (u_isInput1Digit0)
@@ -253,14 +260,6 @@ void main()
         Kd = texture(TextureBlocks, vec2(U,V)).rgb;
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
-    }
-    else if (object_id == PLANE_GROUND) // Diffuse e Phong shading
-    {
-        U = texcoords.x;
-        V = texcoords.y;
-        Kd = texture(TextureBlocks, vec2(U,V)).rgb;
-        lambertDiffuseTerm = Kd * I * lambert;
-        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
     }
 
     // NOTE: Se você quiser fazer o rendering de objetos transparentes, é
