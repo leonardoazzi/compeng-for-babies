@@ -207,7 +207,11 @@ void main()
     }
     else if (object_id == GROUND) // Blinn-Phong e Phong shading
     {
-        Kd = texture(TextureGround, texcoords).rgb;
+        // Forçamos que as coord. de textura saiam do intervalo [0,1]
+        // para aplicar o texture wrappng GL_REPEAT
+        U = texcoords.x * 10.0f;
+        V = texcoords.y * 10.0f;
+        Kd = texture(TextureFloor, vec2(U,V)).rgb;
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
     }
@@ -258,16 +262,6 @@ void main()
         U = texcoords.x;
         V = texcoords.y;
         Kd = texture(TextureBlocks, vec2(U,V)).rgb;
-        lambertDiffuseTerm = Kd * I * lambert;
-        color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
-    }
-    else if (object_id == PLANE_GROUND) // Diffuse e Phong shading
-    {
-        // Forçamos que as coord. de textura saiam do intervalo [0,1]
-        // para aplicar o texture wrappng GL_REPEAT
-        U = texcoords.x * 10.0f;
-        V = texcoords.y * 10.0f;
-        Kd = texture(TextureFloor, vec2(U,V)).rgb;
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
     }

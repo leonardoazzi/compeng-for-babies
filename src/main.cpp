@@ -726,6 +726,12 @@ int main(int argc, char* argv[])
 
         PopMatrix(model);
 
+        // Desenhamos o plano do chão
+        model = Matrix_Translate(0.0f,0.0f,0.0f) * Matrix_Scale(10.0f,10.0f,10.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, GROUND);
+        DrawVirtualObject("the_plane");
+
         // Projeta um ray casting em coord. do mundo a partir das coord. do mouse
         g_rayPoint = MouseRayCasting(projectionMatrix, viewMatrix);
         glm::vec3 rayVec = glm::normalize(glm::vec4(g_rayPoint, 1.0f));
@@ -767,12 +773,6 @@ int main(int argc, char* argv[])
 
         glUniformMatrix4fv(g_view_uniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
         glUniformMatrix4fv(g_projection_uniform, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-
-        // Desenhamos o plano do chão
-        model = Matrix_Translate(0.0f,0.0f,0.0f) * Matrix_Scale(100.0f,100.0f,100.0f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, GROUND);
-        DrawVirtualObject("the_plane");
 
         // Imprimimos na tela os ângulos de Euler que controlam a rotação do
         // terceiro cubo.
