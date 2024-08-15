@@ -302,8 +302,7 @@ int main(int argc, char* argv[])
         #define PLANE_NOT 11
         #define LIGHTBULB_AND 12
         #define PLANE_AND 13
-        #define PLANE_GROUND 14
-        #define GROUND 15
+        #define GROUND 14
 
         #define PLANE_WIDTH 0.2f
         #define PLANE_HEIGHT 0.145f
@@ -726,12 +725,6 @@ int main(int argc, char* argv[])
         }
 
         PopMatrix(model);
-
-        //Desenhamos o plano do chão
-        model = Matrix_Translate(0.0f,0.0f,0.0f) * Matrix_Scale(10.0f,1.0f,10.0f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, PLANE_GROUND);
-        DrawVirtualObject("the_plane");
 
         // Projeta um ray casting em coord. do mundo a partir das coord. do mouse
         g_rayPoint = MouseRayCasting(projectionMatrix, viewMatrix);
