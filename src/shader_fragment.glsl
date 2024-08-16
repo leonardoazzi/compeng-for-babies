@@ -36,6 +36,9 @@ uniform mat4 projection;
 #define LIGHTBULB_AND 12
 #define PLANE_AND 13
 #define GROUND 15
+#define OR 16
+#define PLANE_OR 17
+#define LIGHTBULB_OR 18
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -56,6 +59,7 @@ uniform sampler2D TextureSphere;
 uniform sampler2D TexturePlaneAnd;
 uniform sampler2D TextureBlocks;
 uniform sampler2D TextureGround;
+uniform sampler2D TexturePlaneOr;
 
 uniform bool u_isInput1Digit0;
 uniform bool u_isInput2Digit0;
@@ -189,6 +193,19 @@ void main()
             color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
         }
     }
+    else if ( object_id == LIGHTBULB_OR ) // ON=Blinn-Phong e Phong shading, OFF=Diffuse e Gouraud shading
+    {
+        if (!u_isInput1Digit0 || !u_isInput2Digit0) {
+            Kd = texture(TextureLightbulbON, texcoords).rgb;
+            lambertDiffuseTerm = Kd * I * lambert;
+            color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
+        }
+        else {
+            Kd = texture(TextureLightbulbOFF, texcoords).rgb;
+            lambertDiffuseTerm = Kd * I * lambert;
+            color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
+        }
+    }
     else if (object_id == TABLE) // Diffuse e Phong shading
     {
         Kd = texture(TextureTable, texcoords).rgb;
@@ -253,7 +270,15 @@ void main()
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
     }
-    else if (object_id == NOT || object_id == AND) // Blinn-Phong e Phong shading
+    else if (object_id == PLANE_OR) // Diffuse e Phong shading
+    {
+        U = texcoords.x;
+        V = texcoords.y;
+        Kd = texture(TexturePlaneOr, vec2(U,V)).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
+    }
+    else if (object_id == NOT || object_id == AND || object_id == OR) // Blinn-Phong e Phong shading
     {
         U = texcoords.x;
         V = texcoords.y;

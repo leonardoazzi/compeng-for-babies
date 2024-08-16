@@ -78,8 +78,8 @@ AABB GetWorldAABB(SceneObject obj, glm::mat4 model){
     // @DEBUG
     // std::cout << "BBox Local Min: " << obj.bbox_min.x << " " << obj.bbox_min.y << " " << obj.bbox_min.z << std::endl;
     // std::cout << "BBox Local Max: " << obj.bbox_max.x << " " << obj.bbox_max.y << " " << obj.bbox_max.z << std::endl;
-    std::cout << "BBox World Min: " << min.x << " " << min.y << " " << min.z << std::endl;
-    std::cout << "BBox World Max: " << max.x << " " << max.y << " " << max.z << std::endl;
+    //std::cout << "BBox World Min: " << min.x << " " << min.y << " " << min.z << std::endl;
+    //std::cout << "BBox World Max: " << max.x << " " << max.y << " " << max.z << std::endl;
 
     // Retorna a bounding box em coordenadas de  mundo
     return AABB{min, max}; 

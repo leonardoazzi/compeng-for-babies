@@ -267,6 +267,7 @@ void LoadShadersFromFiles()
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureSphere"), 11);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TexturePlaneAnd"), 12);
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "TextureGround"), 13);
+    glUniform1i(glGetUniformLocation(g_GpuProgramID, "TexturePlaneOr"), 14);
     
     // Variáveis em "shader_fragment.glsl" para controle de texturas dos dígitos
     glUniform1i(glGetUniformLocation(g_GpuProgramID, "u_isInput1Digit0"), isInput1Digit0);
