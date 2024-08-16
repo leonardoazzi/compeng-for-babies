@@ -104,7 +104,7 @@ void main()
     vec3 lambertDiffuseTerm, ambientTerm, specularTerm;
 
     // Definição dos coeficientes de reflexão da superfície
-    Ka  = vec3(0.1,0.1,0.1); // coeficiente de reflexão ambiente
+    Ka  = vec3(0.05,0.05,0.05); // coeficiente de reflexão ambiente
     Ks  = vec3(0.5,0.5,0.5); // coeficiente de reflexão especular
     Ia  = vec3(0.2,0.2,0.2); // intensidade da luz ambiente
     I   = vec3(1.0,1.0,1.0); // intensidade da luz
@@ -209,11 +209,11 @@ void main()
     {
         // Forçamos que as coord. de textura saiam do intervalo [0,1]
         // para aplicar o texture wrappng GL_REPEAT
-        U = texcoords.x * 10.0f;
-        V = texcoords.y * 10.0f;
+        U = texcoords.x * 20.0f;
+        V = texcoords.y * 20.0f;
         Kd = texture(TextureFloor, vec2(U,V)).rgb;
         lambertDiffuseTerm = Kd * I * lambert;
-        color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Blinn-Phong
     }
     else if (object_id == INPUT1_DIGIT) // Diffuse e Phong shading
     {
@@ -259,8 +259,8 @@ void main()
     }
     else if (object_id == NOT || object_id == AND) // Blinn-Phong e Phong shading
     {
-        U = texcoords.x;
-        V = texcoords.y;
+        U = texcoords.x * 2.0f;
+        V = texcoords.y * 2.0f;
         Kd = texture(TextureBlocks, vec2(U,V)).rgb;
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong

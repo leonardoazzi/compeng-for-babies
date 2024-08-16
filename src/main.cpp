@@ -73,10 +73,10 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/display/textures/digit1.jpg"); // TextureDigit1
     LoadTextureImage("../../data/circuits/wire.jpg"); // TexturePlaneWire
     LoadTextureImage("../../data/circuits/not.jpg"); // TexturePlaneNot
-    LoadTextureImage("../../data/circuits/metal_grate_rusty_diff_4k.jpg"); // TextureBlocks
-    LoadTextureImage("../../data/circuits/leather_red_03_coll1_4k.png"); // TextureSphere
+    LoadTextureImage("../../data/fine-textured-plastic-2000-mm-architextures.jpg"); // TextureBlocks
+    LoadTextureImage("../../data/Blocks_001_COLOR_B.jpg"); // TextureSphere
     LoadTextureImage("../../data/circuits/and.jpg"); // TexturePlaneAnd
-    LoadTextureImage("../../data/wood_floor_worn_diff_1k.jpg"); // TextureFloor
+    LoadTextureImage("../../data/grass-1000-mm-architextures.jpg"); // TextureFloor
     
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     buildModel("../../data/sphere.obj");
