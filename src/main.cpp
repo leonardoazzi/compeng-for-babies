@@ -73,11 +73,11 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/display/textures/digit1.jpg"); // TextureDigit1
     LoadTextureImage("../../data/circuits/wire.jpg"); // TexturePlaneWire
     LoadTextureImage("../../data/circuits/not.jpg"); // TexturePlaneNot
-    LoadTextureImage("../../data/circuits/metal_grate_rusty_diff_4k.jpg"); // TextureBlocks
-    LoadTextureImage("../../data/circuits/leather_red_03_coll1_4k.png"); // TextureSphere
+    LoadTextureImage("../../data/fine-textured-plastic-2000-mm-architextures.jpg"); // TextureBlocks
+    LoadTextureImage("../../data/Blocks_001_COLOR_B.jpg"); // TextureSphere
     LoadTextureImage("../../data/circuits/and.jpg"); // TexturePlaneAnd
-    LoadTextureImage("../../data/laminate_floor_02_diff_4k.jpg"); // TextureGround
-
+    LoadTextureImage("../../data/grass-1000-mm-architextures.jpg"); // TextureFloor
+    
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     buildModel("../../data/sphere.obj");
     buildModel("../../data/bunny.obj");
@@ -726,6 +726,12 @@ int main(int argc, char* argv[])
 
         PopMatrix(model);
 
+        // Desenhamos o plano do chão
+        model = Matrix_Translate(0.0f,0.0f,0.0f) * Matrix_Scale(10.0f,10.0f,10.0f);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+        glUniform1i(g_object_id_uniform, GROUND);
+        DrawVirtualObject("the_plane");
+
         // Projeta um ray casting em coord. do mundo a partir das coord. do mouse
         g_rayPoint = MouseRayCasting(projectionMatrix, viewMatrix);
         glm::vec3 rayVec = glm::normalize(glm::vec4(g_rayPoint, 1.0f));
@@ -767,12 +773,6 @@ int main(int argc, char* argv[])
 
         glUniformMatrix4fv(g_view_uniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
         glUniformMatrix4fv(g_projection_uniform, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
-
-        // Desenhamos o plano do chão
-        model = Matrix_Translate(0.0f,0.0f,0.0f) * Matrix_Scale(100.0f,100.0f,100.0f);
-        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-        glUniform1i(g_object_id_uniform, GROUND);
-        DrawVirtualObject("the_plane");
 
         // Imprimimos na tela os ângulos de Euler que controlam a rotação do
         // terceiro cubo.
