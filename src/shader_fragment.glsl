@@ -63,9 +63,8 @@ uniform sampler2D TexturePlaneNot;
 uniform sampler2D TextureSphere;
 uniform sampler2D TexturePlaneAnd;
 uniform sampler2D TextureBlocks;
-uniform sampler2D TextureGround;
 uniform sampler2D TexturePlaneOr;
-
+uniform sampler2D TextureFloor;
 
 uniform bool u_andIsInput1Digit0;
 uniform bool u_andIsInput2Digit0;
@@ -118,13 +117,13 @@ void main()
     vec3 lambertDiffuseTerm, ambientTerm, specularTerm;
 
     // Definição dos coeficientes de reflexão da superfície
-    Ka  = vec3(0.1,0.1,0.1); // coeficiente de reflexão ambiente
+    Ka  = vec3(0.05,0.05,0.05); // coeficiente de reflexão ambiente
     Ks  = vec3(0.5,0.5,0.5); // coeficiente de reflexão especular
     Ia  = vec3(0.2,0.2,0.2); // intensidade da luz ambiente
     I   = vec3(1.0,1.0,1.0); // intensidade da luz
 
     lambert = max(0,dot(n,l));
-    q = 10.0;
+    q = 100.0;
 
     vec4 h = normalize(l+v);
     ambientTerm = Ka * Ia;
@@ -234,9 +233,13 @@ void main()
     }
     else if (object_id == GROUND) // Blinn-Phong e Phong shading
     {
-        Kd = texture(TextureGround, texcoords).rgb;
+        // Forçamos que as coord. de textura saiam do intervalo [0,1]
+        // para aplicar o texture wrappng GL_REPEAT
+        U = texcoords.x * 20.0f;
+        V = texcoords.y * 20.0f;
+        Kd = texture(TextureFloor, vec2(U,V)).rgb;
         lambertDiffuseTerm = Kd * I * lambert;
-        color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Blinn-Phong
     }
     else if (object_id == AND_INPUT1_DIGIT) // Diffuse e Phong shading
     {
@@ -326,8 +329,8 @@ void main()
     }
     else if (object_id == NOT || object_id == AND || object_id == OR) // Blinn-Phong e Phong shading
     {
-        U = texcoords.x;
-        V = texcoords.y;
+        U = texcoords.x * 2.0f;
+        V = texcoords.y * 2.0f;
         Kd = texture(TextureBlocks, vec2(U,V)).rgb;
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
