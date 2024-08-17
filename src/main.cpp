@@ -77,6 +77,8 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/Blocks_001_COLOR_B.jpg"); // TextureSphere
     LoadTextureImage("../../data/circuits/and.jpg"); // TexturePlaneAnd
     LoadTextureImage("../../data/grass-1000-mm-architextures.jpg"); // TextureFloor
+    LoadTextureImage("../../data/circuits/or.jpg"); // TexturePlaneOr
+
     
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     buildModel("../../data/sphere.obj");
@@ -89,6 +91,7 @@ int main(int argc, char* argv[])
     buildModel("../../data/table/chinese_console_table_4k.obj");
     buildModel("../../data/not/not.obj");
     buildModel("../../data/and/and.obj");
+    buildModel("../../data/or/or.obj");
 
     if ( argc > 1 )
     {
@@ -162,6 +165,13 @@ int main(int argc, char* argv[])
 
     GameObject NotCircuit = {
         NotCircuit.name = "Circuito NOT", 
+        NotCircuit.pos = glm::vec3(0.0f, 0.0f, 0.0f),
+        NotCircuit.scale = glm::vec3(0.0f, 0.0f, 0.0f),
+        NotCircuit.rotation = glm::vec3(0.0f, 0.0f, 0.0f),
+    };
+
+    GameObject OrCircuit = {
+        NotCircuit.name = "Circuito OR", 
         NotCircuit.pos = glm::vec3(0.0f, 0.0f, 0.0f),
         NotCircuit.scale = glm::vec3(0.0f, 0.0f, 0.0f),
         NotCircuit.rotation = glm::vec3(0.0f, 0.0f, 0.0f),
@@ -290,19 +300,26 @@ int main(int argc, char* argv[])
 
         #define SPHERE 0
         #define LIGHTBULB_WIRE 1
-        #define NOT  2
-        #define AND  3
-        #define WIRE  4
+        #define NOT 2
+        #define AND 3
+        #define WIRE 4
         #define DISPLAY 5
         #define TABLE 6
-        #define INPUT1_DIGIT 7
-        #define INPUT2_DIGIT 8
+        #define AND_INPUT1_DIGIT 7
+        #define AND_INPUT2_DIGIT 8
         #define PLANE_WIRE 9
         #define LIGHTBULB_NOT 10
         #define PLANE_NOT 11
         #define LIGHTBULB_AND 12
         #define PLANE_AND 13
         #define GROUND 14
+        #define OR 15
+        #define PLANE_OR 16
+        #define LIGHTBULB_OR 17
+        #define OR_INPUT2_DIGIT 18
+        #define OR_INPUT1_DIGIT 19
+        #define WIRE_INPUT1_DIGIT 20
+        #define NOT_INPUT1_DIGIT 21
 
         #define PLANE_WIDTH 0.2f
         #define PLANE_HEIGHT 0.145f
@@ -341,6 +358,15 @@ int main(int argc, char* argv[])
         glUniform4f(g_bbox_max_uniform, bbox_max.x, bbox_max.y, bbox_max.z, 1.0f);
         float tableHeight = bbox_max.z - bbox_min.z;
         float tableWidth = bbox_max.x - bbox_min.x;
+        tableWidth -= 0.015f;
+        float tableDepth = bbox_max.y - bbox_min.y;
+
+        // Cálculo da altura da lâmpada
+        bbox_min = g_VirtualScene["lightbulb_01"].bbox_min;
+        bbox_max = g_VirtualScene["lightbulb_01"].bbox_max;
+        glUniform4f(g_bbox_min_uniform, bbox_min.x, bbox_min.y, bbox_min.z, 1.0f);
+        glUniform4f(g_bbox_max_uniform, bbox_max.x, bbox_max.y, bbox_max.z, 1.0f);
+        float lightBulbHeight = bbox_max[1] - bbox_min[1];
 
         // ----------------------------------------------------------------------------------------------------------
         // CIRCUITOS
@@ -353,7 +379,7 @@ int main(int argc, char* argv[])
             // 1 - WIRE
             // ----------------------------------------------------------------------------------------------------------     
             
-            WireCircuit.pos.x = - tableWidth / NUM_CIRCUITS - 0.15f;
+            WireCircuit.pos.x = - tableWidth / NUM_CIRCUITS - 0.2f;
 
             // Desenhamos o circuito WIRE
             PushMatrix(model);
@@ -413,7 +439,7 @@ int main(int argc, char* argv[])
                             model *= Matrix_Translate(0.0f, DISPLAY_WIDTH + 0.0005, 0.0f) 
                                 * Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
                             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-                            glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
+                            glUniform1i(g_object_id_uniform, WIRE_INPUT1_DIGIT);
                             DrawVirtualObject("the_plane");
                             AABB wireInputBbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
                         PopMatrix(model);
@@ -435,7 +461,7 @@ int main(int argc, char* argv[])
             // ----------------------------------------------------------------------------------------------------------
             // 2 - NOT
             // ----------------------------------------------------------------------------------------------------------
-            NotCircuit.pos.x = - (3 / NUM_CIRCUITS) * tableWidth - 0.15f;
+            NotCircuit.pos.x = - (3 / NUM_CIRCUITS) * tableWidth - 0.2f;
 
             // Desenhamos o circuito NOT
             PushMatrix(model);
@@ -504,7 +530,7 @@ int main(int argc, char* argv[])
                         model *= Matrix_Translate(0.0f, DISPLAY_WIDTH + 0.0005, 0.0f) 
                             * Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
                         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-                        glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
+                        glUniform1i(g_object_id_uniform, NOT_INPUT1_DIGIT);
                         DrawVirtualObject("the_plane");
                         AABB notInputBbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
                     PopMatrix(model);
@@ -548,7 +574,7 @@ int main(int argc, char* argv[])
             // ----------------------------------------------------------------------------------------------------------
             // 3 - AND
             // ----------------------------------------------------------------------------------------------------------
-            AndCircuit.pos.x = tableWidth / NUM_CIRCUITS - 0.15f;
+            AndCircuit.pos.x = tableWidth / NUM_CIRCUITS - 0.2f;
             
             // Desenhamos o circuito AND
             PushMatrix(model);
@@ -631,7 +657,7 @@ int main(int argc, char* argv[])
                             model *= Matrix_Translate(0.0f, DISPLAY_WIDTH + 0.0005, 0.0f) 
                                 * Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
                             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-                            glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
+                            glUniform1i(g_object_id_uniform, AND_INPUT1_DIGIT);
                             DrawVirtualObject("the_plane");
                         PopMatrix(model);
 
@@ -648,7 +674,7 @@ int main(int argc, char* argv[])
                             model *= Matrix_Translate(0.0f, DISPLAY_WIDTH + 0.0005, 0.0f) 
                                 * Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
                             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-                            glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
+                            glUniform1i(g_object_id_uniform, AND_INPUT1_DIGIT);
                             DrawVirtualObject("the_plane");
                             AABB andInput1Bbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
                         PopMatrix(model);
@@ -672,7 +698,7 @@ int main(int argc, char* argv[])
                             model *= Matrix_Translate(0.0f, DISPLAY_WIDTH + 0.0005, 0.0f) 
                                 * Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
                             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-                            glUniform1i(g_object_id_uniform, INPUT2_DIGIT);
+                            glUniform1i(g_object_id_uniform, AND_INPUT2_DIGIT);
                             DrawVirtualObject("the_plane");
                         PopMatrix(model);
 
@@ -689,7 +715,7 @@ int main(int argc, char* argv[])
                             model *= Matrix_Translate(0.0f, DISPLAY_WIDTH + 0.0005, 0.0f) 
                                 * Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
                             glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
-                            glUniform1i(g_object_id_uniform, INPUT1_DIGIT);
+                            glUniform1i(g_object_id_uniform, AND_INPUT1_DIGIT);
                             DrawVirtualObject("the_plane");
                             AABB andInput2Bbox = GetWorldAABB(g_VirtualScene["Cube"], model);
                         PopMatrix(model);
@@ -709,20 +735,200 @@ int main(int argc, char* argv[])
                     AABB andBbox = GetWorldAABB(g_VirtualScene["and"], model);
 
                 PopMatrix(model);
+
+                std::vector<AABB> andCircuitObjects = {
+                    andPlaneBbox,
+                    andBulbBbox,
+                    andInput1Bbox,
+                    andInput2Bbox,
+                    andBbox
+                };
+
+                if (g_LeftMouseButtonPressed && AndCircuit.isHovered) {
+                    AndCircuit.rotation.y = g_AngleY;
+                }
             
             PopMatrix(model);
 
-        std::vector<AABB> andCircuitObjects = {
-            andPlaneBbox,
-            andBulbBbox,
-            andInput1Bbox,
-            andInput2Bbox,
-            andBbox
-        };
+            // ----------------------------------------------------------------------------------------------------------
+            // 4 - OR
+            // ----------------------------------------------------------------------------------------------------------
 
-        if (g_LeftMouseButtonPressed && AndCircuit.isHovered) {
-            AndCircuit.rotation.y = g_AngleY;
-        }
+            OrCircuit.pos.x = 2 * tableWidth / NUM_CIRCUITS - 0.2f;
+
+            PushMatrix(model);
+
+                model *= Matrix_Translate(OrCircuit.pos.x, OrCircuit.pos.y, OrCircuit.pos.z);
+
+                if (OrCircuit.isHovered) model *= Matrix_Rotate_Y(g_AngleY);
+                else model *= Matrix_Rotate_Y(OrCircuit.rotation.y);
+
+                // Plano com o circuito OR
+                PushMatrix(model);
+                    model *= Matrix_Scale(PLANE_WIDTH, 1.0f, PLANE_HEIGHT);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, PLANE_OR);
+                    DrawVirtualObject("the_plane");
+                    AABB orPlaneBbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // desenhamos a lâmpada
+                    model *= Matrix_Translate(CIRCUIT_WIDTH, 0.01f, 0.0f);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, LIGHTBULB_OR);
+                    DrawVirtualObject("lightbulb_01");
+                    AABB orBulbBbox = GetWorldAABB(g_VirtualScene["lightbulb_01"], model);
+
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // Desenhamos a primeira metade do modelo do fio
+                    model *= Matrix_Translate(-(CIRCUIT_WIDTH - 0.065f), 0.01f,0.0f)
+                        * Matrix_Rotate_X(M_PI/2.0f)
+                        * Matrix_Rotate_Z(M_PI/2.0f)
+                        * Matrix_Scale(0.01f, CIRCUIT_WIDTH / 4.0 + 0.02f, 0.01f);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, WIRE);
+                    DrawVirtualObject("Cylinder");
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // Desenhamos a segunda metade do modelo do fio
+                    model *= Matrix_Translate(CIRCUIT_WIDTH - 0.05f,0.01f,0.0f)
+                        * Matrix_Rotate_X(M_PI/2.0f)
+                        * Matrix_Rotate_Z(M_PI/2.0f)
+                        * Matrix_Scale(0.01f, CIRCUIT_WIDTH / 4.0f, 0.01f);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, WIRE);
+                    DrawVirtualObject("Cylinder");
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // Desenhamos a o fio vertical que liga os dos displays ao circuito
+                    model *= Matrix_Translate(-CIRCUIT_WIDTH, 0.01f, 0.0f)
+                        * Matrix_Rotate_Y(M_PI/2.0f)
+                        * Matrix_Rotate_Z(M_PI/2.0f)
+                        * Matrix_Scale(0.01f, PLANE_HEIGHT - (2 * DISPLAY_HEIGHT), 0.01f);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, WIRE);
+                    DrawVirtualObject("Cylinder");
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // posição do display
+                    model *= Matrix_Translate(-CIRCUIT_WIDTH, 0.0f, 0.0f);
+
+                    PushMatrix(model);
+                        // Posição do display 1
+                        model *= Matrix_Translate(0.0f, 0.0f, - (PLANE_HEIGHT / 2.0f));
+
+                        PushMatrix(model);
+                            // Desenhamos o modelo do cubo do display
+                            model *= Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, DISPLAY);
+                            DrawVirtualObject("Cube");
+                        PopMatrix(model);
+
+                        PushMatrix(model);
+                            // // Desenhamos o modelo do display do dígito
+                            model *= Matrix_Translate(0.0f, DISPLAY_WIDTH + 0.0005, 0.0f) 
+                                * Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, OR_INPUT1_DIGIT);
+                            DrawVirtualObject("the_plane");
+                        PopMatrix(model);
+
+                        PushMatrix(model);
+                            // Desenhamos o modelo do cubo do display
+                            model *= Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, DISPLAY);
+                            DrawVirtualObject("Cube");
+                        PopMatrix(model);
+
+                        PushMatrix(model);
+                            // // Desenhamos o modelo do display do dígito
+                            model *= Matrix_Translate(0.0f, DISPLAY_WIDTH + 0.0005, 0.0f) 
+                                * Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, OR_INPUT1_DIGIT);
+                            DrawVirtualObject("the_plane");
+
+                            AABB orInput1Bbox = GetWorldAABB(g_VirtualScene["the_plane"], model);
+                        PopMatrix(model);
+                        
+                    PopMatrix(model);
+
+                    PushMatrix(model);
+                        // Posição do display 2
+                        model *= Matrix_Translate(0.0f, 0.0f, PLANE_HEIGHT / 2.0f);
+
+                        PushMatrix(model);
+                            // Desenhamos o modelo do cubo do display
+                            model *= Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, DISPLAY);
+                            DrawVirtualObject("Cube");
+                        PopMatrix(model);
+
+                        PushMatrix(model);
+                            // // Desenhamos o modelo do display do dígito
+                            model *= Matrix_Translate(0.0f, DISPLAY_WIDTH + 0.0005, 0.0f) 
+                                * Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, OR_INPUT2_DIGIT);
+                            DrawVirtualObject("the_plane");
+                        PopMatrix(model);
+
+                        PushMatrix(model);
+                            // Desenhamos o modelo do cubo do display
+                            model *= Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, DISPLAY);
+                            DrawVirtualObject("Cube");
+                        PopMatrix(model);
+
+                        PushMatrix(model);
+                            // // Desenhamos o modelo do display do dígito
+                            model *= Matrix_Translate(0.0f, DISPLAY_WIDTH + 0.0005, 0.0f) 
+                                * Matrix_Scale(DISPLAY_WIDTH, DISPLAY_WIDTH, DISPLAY_HEIGHT);
+                            glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                            glUniform1i(g_object_id_uniform, OR_INPUT1_DIGIT);
+                            DrawVirtualObject("the_plane");
+
+                            AABB orInput2Bbox = GetWorldAABB(g_VirtualScene["Cube"], model);
+                        PopMatrix(model);
+                        
+                    PopMatrix(model);                
+                
+                PopMatrix(model);
+
+                PushMatrix(model);
+                    // Desenhamos o modelo do bloco OR
+                    model *= Matrix_Translate(0.0f, 0.0f, 0.0f)
+                        * Matrix_Scale(CIRCUIT_WIDTH / 4.0f + 0.01f, CIRCUIT_WIDTH / 4.0f + 0.01f, CIRCUIT_WIDTH / 4.0f + 0.01f)
+                        * Matrix_Rotate_Y(-M_PI/2.0f);
+                    glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(model));
+                    glUniform1i(g_object_id_uniform, OR);
+                    DrawVirtualObject("or");
+                    AABB orBbox = GetWorldAABB(g_VirtualScene["and"], model);
+                PopMatrix(model);
+
+            PopMatrix(model);
+
+            std::vector<AABB> orCircuitObjects = {
+                orPlaneBbox,
+                orBulbBbox,
+                orInput1Bbox,
+                orInput2Bbox,
+                orBbox
+            };
+
+            if (g_LeftMouseButtonPressed && OrCircuit.isHovered) {
+                OrCircuit.rotation.y = g_AngleY;
+            }
 
         PopMatrix(model);
 
@@ -740,15 +946,37 @@ int main(int argc, char* argv[])
         bool notInputClick = RayIntersectsAABB(camera_position_c, rayVec, notInputBbox);
         bool andInput1Click = RayIntersectsAABB(camera_position_c, rayVec, andInput1Bbox);
         bool andInput2Click = RayIntersectsAABB(camera_position_c, rayVec, andInput2Bbox);
+        bool orInput1Click = RayIntersectsAABB(camera_position_c, rayVec, orInput1Bbox);
+        bool orInput2Click = RayIntersectsAABB(camera_position_c, rayVec, orInput2Bbox);
  
         // Testa o clique do mouse para alterar o input dos circuitos
-        if (g_LeftMouseButtonPressed && (wireInputClick || notInputClick || andInput1Click)){
-            isInput1Digit0 = !isInput1Digit0;
+        if (g_LeftMouseButtonPressed && wireInputClick) {
+            wireIsInputDigit0 = !wireIsInputDigit0;
             reLoadShaders();
             g_LeftMouseButtonPressed = false;
         }
-        if (g_LeftMouseButtonPressed && andInput2Click){
-            isInput2Digit0 = !isInput2Digit0;
+        else if (g_LeftMouseButtonPressed && notInputClick) {
+            notIsInputDigit0 = !notIsInputDigit0;
+            reLoadShaders();
+            g_LeftMouseButtonPressed = false;
+        }
+        else if (g_LeftMouseButtonPressed && andInput1Click) {
+            andIsInput1Digit0 = !andIsInput1Digit0;
+            reLoadShaders();
+            g_LeftMouseButtonPressed = false;
+        }
+        else if (g_LeftMouseButtonPressed && andInput2Click) {
+            andIsInput2Digit0 = !andIsInput2Digit0;
+            reLoadShaders();
+            g_LeftMouseButtonPressed = false;
+        }
+        else if (g_LeftMouseButtonPressed && orInput1Click) {
+            orIsInput1Digit0 = !orIsInput1Digit0;
+            reLoadShaders();
+            g_LeftMouseButtonPressed = false;
+        }
+        else if (g_LeftMouseButtonPressed && orInput2Click) {
+            orIsInput2Digit0 = !orIsInput2Digit0;
             reLoadShaders();
             g_LeftMouseButtonPressed = false;
         }
@@ -757,11 +985,13 @@ int main(int argc, char* argv[])
         AndCircuit.bbox = FindGroupBbox(andCircuitObjects);
         WireCircuit.bbox = FindGroupBbox(wireCircuitObjects);
         NotCircuit.bbox = FindGroupBbox(notCircuitObjects);
+        OrCircuit.bbox = FindGroupBbox(orCircuitObjects);
 
         // Teste de hover sobre o conjunto de cada circuito
         AndCircuit.isHovered = RayIntersectsAABB(camera_position_c, rayVec, AndCircuit.bbox);
         WireCircuit.isHovered = RayIntersectsAABB(camera_position_c, rayVec, WireCircuit.bbox);
         NotCircuit.isHovered = RayIntersectsAABB(camera_position_c, rayVec, NotCircuit.bbox);
+        OrCircuit.isHovered = RayIntersectsAABB(camera_position_c, rayVec, OrCircuit.bbox);
 
         // Define a hitsphere da câmera
         Sphere cameraSphere = {camera_position_c, 0.2f};

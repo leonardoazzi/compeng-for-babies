@@ -192,8 +192,12 @@ extern GLuint g_NumLoadedTextures;
 extern double g_LastCursorPosX, g_LastCursorPosY;
 
 // Variáveis que mudam o dígito de cada display
-extern bool isInput1Digit0;
-extern bool isInput2Digit0;
+extern bool andIsInput1Digit0;
+extern bool andIsInput2Digit0;
+extern bool wireIsInputDigit0;
+extern bool notIsInputDigit0;
+extern bool orIsInput1Digit0;
+extern bool orIsInput2Digit0;
 
 // Variáveis de estado para as teclas de movimentação da câmera
 extern bool W_key_pressed;

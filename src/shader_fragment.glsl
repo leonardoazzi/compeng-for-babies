@@ -28,14 +28,22 @@ uniform mat4 projection;
 #define WIRE 4
 #define DISPLAY 5
 #define TABLE 6
-#define INPUT1_DIGIT 7
-#define INPUT2_DIGIT 8
+#define AND_INPUT1_DIGIT 7
+#define AND_INPUT2_DIGIT 8
 #define PLANE_WIRE 9
 #define LIGHTBULB_NOT 10
 #define PLANE_NOT 11
 #define LIGHTBULB_AND 12
 #define PLANE_AND 13
 #define GROUND 14
+#define OR 15
+#define PLANE_OR 16
+#define LIGHTBULB_OR 17
+#define OR_INPUT2_DIGIT 18
+#define OR_INPUT1_DIGIT 19
+#define WIRE_INPUT1_DIGIT 20
+#define NOT_INPUT1_DIGIT 21
+
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -56,9 +64,14 @@ uniform sampler2D TextureSphere;
 uniform sampler2D TexturePlaneAnd;
 uniform sampler2D TextureBlocks;
 uniform sampler2D TextureFloor;
+uniform sampler2D TexturePlaneOr;
 
-uniform bool u_isInput1Digit0;
-uniform bool u_isInput2Digit0;
+uniform bool u_andIsInput1Digit0;
+uniform bool u_andIsInput2Digit0;
+uniform bool u_orIsInput1Digit0;
+uniform bool u_orIsInput2Digit0;
+uniform bool u_notIsInputDigit0;
+uniform bool u_wireIsInputDigit0;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec4 color;
@@ -152,7 +165,7 @@ void main()
     }
     else if ( object_id == LIGHTBULB_WIRE ) // ON=Blinn-Phong, OFF=Diffuse, Phong shading
     {
-        if (!u_isInput1Digit0) {
+        if (!u_wireIsInputDigit0) {
             Kd = texture(TextureLightbulbON, texcoords).rgb;
             lambertDiffuseTerm = Kd * I * lambert;
             color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
@@ -165,7 +178,7 @@ void main()
     }
     else if ( object_id == LIGHTBULB_NOT ) // ON=Blinn-Phong e Phong shading, OFF=Diffuse e Gouraud shading
     {
-        if (u_isInput1Digit0) {
+        if (u_notIsInputDigit0) {
             Kd = texture(TextureLightbulbON, texcoords).rgb;
             lambertDiffuseTerm = Kd * I * lambert;
             color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
@@ -178,7 +191,20 @@ void main()
     }
     else if ( object_id == LIGHTBULB_AND ) // ON=Blinn-Phong e Phong shading, OFF=Diffuse e Gouraud shading
     {
-        if (!u_isInput1Digit0 && !u_isInput2Digit0) {
+        if (!u_andIsInput1Digit0 && !u_andIsInput2Digit0) {
+            Kd = texture(TextureLightbulbON, texcoords).rgb;
+            lambertDiffuseTerm = Kd * I * lambert;
+            color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
+        }
+        else {
+            Kd = texture(TextureLightbulbOFF, texcoords).rgb;
+            lambertDiffuseTerm = Kd * I * lambert;
+            color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
+        }
+    }
+    else if ( object_id == LIGHTBULB_OR ) // ON=Blinn-Phong e Phong shading, OFF=Diffuse e Gouraud shading
+    {
+        if (!u_orIsInput1Digit0 || !u_orIsInput2Digit0) {
             Kd = texture(TextureLightbulbON, texcoords).rgb;
             lambertDiffuseTerm = Kd * I * lambert;
             color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
@@ -215,18 +241,54 @@ void main()
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm; // Blinn-Phong
     }
-    else if (object_id == INPUT1_DIGIT) // Diffuse e Phong shading
+    else if (object_id == AND_INPUT1_DIGIT) // Diffuse e Phong shading
     {
-        if (u_isInput1Digit0)
+        if (u_andIsInput1Digit0)
             Kd = texture(TextureDigit0, texcoords).rgb;
         else
             Kd = texture(TextureDigit1, texcoords).rgb;
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
     }
-    else if (object_id == INPUT2_DIGIT) // Diffuse e Phong shading
+    else if (object_id == AND_INPUT2_DIGIT) // Diffuse e Phong shading
     {
-        if (u_isInput2Digit0)
+        if (u_andIsInput2Digit0)
+            Kd = texture(TextureDigit0, texcoords).rgb;
+        else
+            Kd = texture(TextureDigit1, texcoords).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
+    }
+    else if (object_id == OR_INPUT1_DIGIT) // Diffuse e Phong shading
+    {
+        if (u_orIsInput1Digit0)
+            Kd = texture(TextureDigit0, texcoords).rgb;
+        else
+            Kd = texture(TextureDigit1, texcoords).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
+    }
+    else if (object_id == OR_INPUT2_DIGIT) // Diffuse e Phong shading
+    {
+        if (u_orIsInput2Digit0)
+            Kd = texture(TextureDigit0, texcoords).rgb;
+        else
+            Kd = texture(TextureDigit1, texcoords).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
+    }
+    else if (object_id == NOT_INPUT1_DIGIT) // Diffuse e Phong shading
+    {
+        if (u_notIsInputDigit0)
+            Kd = texture(TextureDigit0, texcoords).rgb;
+        else
+            Kd = texture(TextureDigit1, texcoords).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
+    }
+    else if (object_id == WIRE_INPUT1_DIGIT) // Diffuse e Phong shading
+    {
+        if (u_wireIsInputDigit0)
             Kd = texture(TextureDigit0, texcoords).rgb;
         else
             Kd = texture(TextureDigit1, texcoords).rgb;
@@ -257,7 +319,15 @@ void main()
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
     }
-    else if (object_id == NOT || object_id == AND) // Blinn-Phong e Phong shading
+    else if (object_id == PLANE_OR) // Diffuse e Phong shading
+    {
+        U = texcoords.x;
+        V = texcoords.y;
+        Kd = texture(TexturePlaneOr, vec2(U,V)).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
+    }
+    else if (object_id == NOT || object_id == AND || object_id == OR) // Blinn-Phong e Phong shading
     {
         U = texcoords.x * 2.0f;
         V = texcoords.y * 2.0f;

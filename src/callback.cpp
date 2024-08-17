@@ -107,18 +107,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
         g_ShowInfoText = !g_ShowInfoText;
     }
 
-    if (key == GLFW_KEY_1 && action == GLFW_PRESS)
-    {
-        isInput1Digit0 = !isInput1Digit0;
-        reLoadShaders();
-    }
-
-    if (key == GLFW_KEY_2 && action == GLFW_PRESS)
-    {
-        isInput2Digit0 = !isInput2Digit0;
-        reLoadShaders();
-    }
-
     // Se o usuário apertar a tecla R, recarregamos os shaders dos arquivos "shader_fragment.glsl" e "shader_vertex.glsl".
     if (key == GLFW_KEY_R && action == GLFW_PRESS)
     {
