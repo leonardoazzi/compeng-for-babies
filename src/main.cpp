@@ -76,8 +76,9 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/fine-textured-plastic-2000-mm-architextures.jpg"); // TextureBlocks
     LoadTextureImage("../../data/Blocks_001_COLOR_B.jpg"); // TextureSphere
     LoadTextureImage("../../data/circuits/and.jpg"); // TexturePlaneAnd
-    LoadTextureImage("../../data/circuits/or.jpg"); // TexturePlaneOr
     LoadTextureImage("../../data/grass-1000-mm-architextures.jpg"); // TextureFloor
+    LoadTextureImage("../../data/circuits/or.jpg"); // TexturePlaneOr
+
     
     // Construímos a representação de objetos geométricos através de malhas de triângulos
     buildModel("../../data/sphere.obj");
@@ -135,7 +136,6 @@ int main(int argc, char* argv[])
     glm::vec3 endPoint = glm::vec3(0.0f, 2.0f, 0.04f);
     glm::vec3 controlPoint1 = startPoint + glm::normalize(endPoint - startPoint)* 0.3f;
     glm::vec3 controlPoint2 = endPoint + glm::normalize(endPoint - startPoint)* 0.3f;
-
 
     // Inicializa a flag de colisão com a mesa
     bool isTableCollision = false;
@@ -221,7 +221,6 @@ int main(int argc, char* argv[])
                 g_CameraDistance = sqrt(camera_position_c.x*camera_position_c.x + camera_position_c.y*camera_position_c.y + camera_position_c.z*camera_position_c.z);
                 g_CameraPhi = glm::asin(camera_position_c.y / g_CameraDistance);
                 g_CameraTheta = glm::atan(camera_position_c.x, camera_position_c.z);
-
             }
         }
 
@@ -301,9 +300,9 @@ int main(int argc, char* argv[])
 
         #define SPHERE 0
         #define LIGHTBULB_WIRE 1
-        #define NOT  2
-        #define AND  3
-        #define WIRE  4
+        #define NOT 2
+        #define AND 3
+        #define WIRE 4
         #define DISPLAY 5
         #define TABLE 6
         #define AND_INPUT1_DIGIT 7
@@ -313,15 +312,14 @@ int main(int argc, char* argv[])
         #define PLANE_NOT 11
         #define LIGHTBULB_AND 12
         #define PLANE_AND 13
-        #define BUNNY 14
-        #define GROUND 15
-        #define OR 16
-        #define PLANE_OR 17
-        #define LIGHTBULB_OR 18
-        #define OR_INPUT2_DIGIT 19
-        #define OR_INPUT1_DIGIT 20
-        #define WIRE_INPUT1_DIGIT 21
-        #define NOT_INPUT1_DIGIT 22
+        #define GROUND 14
+        #define OR 15
+        #define PLANE_OR 16
+        #define LIGHTBULB_OR 17
+        #define OR_INPUT2_DIGIT 18
+        #define OR_INPUT1_DIGIT 19
+        #define WIRE_INPUT1_DIGIT 20
+        #define NOT_INPUT1_DIGIT 21
 
         #define PLANE_WIDTH 0.2f
         #define PLANE_HEIGHT 0.145f

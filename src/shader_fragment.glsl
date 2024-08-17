@@ -35,14 +35,14 @@ uniform mat4 projection;
 #define PLANE_NOT 11
 #define LIGHTBULB_AND 12
 #define PLANE_AND 13
-#define GROUND 15
-#define OR 16
-#define PLANE_OR 17
-#define LIGHTBULB_OR 18
-#define OR_INPUT2_DIGIT 19
-#define OR_INPUT1_DIGIT 20
-#define WIRE_INPUT1_DIGIT 21
-#define NOT_INPUT1_DIGIT 22
+#define GROUND 14
+#define OR 15
+#define PLANE_OR 16
+#define LIGHTBULB_OR 17
+#define OR_INPUT2_DIGIT 18
+#define OR_INPUT1_DIGIT 19
+#define WIRE_INPUT1_DIGIT 20
+#define NOT_INPUT1_DIGIT 21
 
 uniform int object_id;
 
@@ -63,8 +63,8 @@ uniform sampler2D TexturePlaneNot;
 uniform sampler2D TextureSphere;
 uniform sampler2D TexturePlaneAnd;
 uniform sampler2D TextureBlocks;
-uniform sampler2D TexturePlaneOr;
 uniform sampler2D TextureFloor;
+uniform sampler2D TexturePlaneOr;
 
 uniform bool u_andIsInput1Digit0;
 uniform bool u_andIsInput2Digit0;
