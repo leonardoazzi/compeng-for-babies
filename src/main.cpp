@@ -137,7 +137,7 @@ int main(int argc, char* argv[])
     glm::vec3 controlPoint1 = startPoint + glm::normalize(endPoint - startPoint)* 0.3f;
     glm::vec3 controlPoint2 = endPoint + glm::normalize(endPoint - startPoint)* 0.3f;
 
-    // Inicializa a flag de colisão com a mesa
+    // Inicializa a flag de colisão com a câmera
     bool isTableCollision = false;
 
     // Inicializa as informações sobre os objetos da cena
@@ -224,13 +224,15 @@ int main(int argc, char* argv[])
             }
         }
 
+        // Limita o ângulo phi para evitar que a câmera atravesse o plano do chão xz
+        g_CameraPhi = std::max(0.1f, g_CameraPhi);
+
         // Computamos a posição da câmera utilizando coordenadas esféricas.  As
         // variáveis g_CameraDistance, g_CameraPhi, e g_CameraTheta são
         // controladas pelo mouse do usuário. Veja as funções CursorPosCallback()
         // e ScrollCallback().
         // Aqui, os parâmetros irão atualizar a orientação do vetor view em relação ao
         // ponto c 'ancorado'. 
-
         float r = g_CameraDistance;
         float y = r*sin(g_CameraPhi);
         float z = r*cos(g_CameraPhi)*cos(g_CameraTheta);
