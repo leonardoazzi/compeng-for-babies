@@ -165,7 +165,7 @@ void main()
 
         color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
     }
-    else if ( object_id == SKY ) // Blinn-Phong e Phong shading
+    else if ( object_id == SKY ) // Totalmente difusa e Phong shading
     {
         vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
 
@@ -185,9 +185,7 @@ void main()
         // Obtemos a refletância difusa a partir da leitura da imagem TextureSphere
         Kd = texture(TextureSky, vec2(U,V)).rgb;
 
-        lambertDiffuseTerm = Kd * I * lambert;
-
-        color.rgb = Kd; // Blinn-Phong
+        color.rgb = Kd;
     }
     else if ( object_id == LIGHTBULB_WIRE ) // ON=Blinn-Phong, OFF=Diffuse, Phong shading
     {
