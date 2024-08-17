@@ -368,7 +368,6 @@ void TextRendering_ShowMouseCoords(GLFWwindow* window)
     float pad = TextRendering_LineHeight(window);
 
     char buffer[80];
-    snprintf(buffer, 80, "Position coordinates = Z(%.2f)*Y(%.2f)*X(%.2f)\n", g_AngleZ, g_AngleY, g_AngleX);
     snprintf(buffer, 80, "Cursor = X(%.2f), Y(%.2f)\n", g_LastCursorPosX, g_LastCursorPosY);
 
     TextRendering_PrintString(window, buffer, -1.0f+pad/10, -1.0f+2*pad/10, 1.0f);
