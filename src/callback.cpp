@@ -1,8 +1,6 @@
 #include "callback.h"
 #include <iostream>
 
-bool isInput1Digit0 = true;
-bool isInput2Digit0 = true;
 
 // Variáveis de estado para as teclas de movimentação da câmera
 bool W_key_pressed = false;
@@ -63,7 +61,7 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     //   Se apertar tecla Z       então g_AngleZ += delta;
     //   Se apertar tecla shift+Z então g_AngleZ -= delta;
 
-    float delta = 3.141592 / 16; // 22.5 graus, em radianos.
+    float delta = 3.141592 / 2; // pi/2
 
     if (key == GLFW_KEY_X && action == GLFW_PRESS)
     {
@@ -107,18 +105,6 @@ void KeyCallback(GLFWwindow* window, int key, int scancode, int action, int mod)
     if (key == GLFW_KEY_H && action == GLFW_PRESS)
     {
         g_ShowInfoText = !g_ShowInfoText;
-    }
-
-    if (key == GLFW_KEY_1 && action == GLFW_PRESS)
-    {
-        isInput1Digit0 = !isInput1Digit0;
-        reLoadShaders();
-    }
-
-    if (key == GLFW_KEY_2 && action == GLFW_PRESS)
-    {
-        isInput2Digit0 = !isInput2Digit0;
-        reLoadShaders();
     }
 
     // Se o usuário apertar a tecla R, recarregamos os shaders dos arquivos "shader_fragment.glsl" e "shader_vertex.glsl".

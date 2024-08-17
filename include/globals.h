@@ -101,6 +101,28 @@ struct AABB {
     glm::vec3 max;
 };
 
+struct GameObject {
+    std::string name;
+    glm::vec3 pos;
+    glm::vec3 scale;
+    glm::vec3 rotation;
+    SceneObject sceneObject;
+    bool isHovered;
+    AABB bbox;
+};
+
+/**
+ * @brief Struct que representa uma esfera.
+ * 
+ * Contém as informações necessárias para representar uma esfera no espaço tridimensional.
+ * Ela armazena o centro da esfera e o raio da mesma.
+ */
+struct Sphere {
+    glm::vec3 center;
+    float radius;
+};
+
+
 // Abaixo definimos variáveis globais utilizadas em várias funções do código.
 
 // A cena virtual é uma lista de objetos nomeados, guardados em um dicionário
@@ -170,8 +192,12 @@ extern GLuint g_NumLoadedTextures;
 extern double g_LastCursorPosX, g_LastCursorPosY;
 
 // Variáveis que mudam o dígito de cada display
-extern bool isInput1Digit0;
-extern bool isInput2Digit0;
+extern bool andIsInput1Digit0;
+extern bool andIsInput2Digit0;
+extern bool wireIsInputDigit0;
+extern bool notIsInputDigit0;
+extern bool orIsInput1Digit0;
+extern bool orIsInput2Digit0;
 
 // Variáveis de estado para as teclas de movimentação da câmera
 extern bool W_key_pressed;
@@ -182,3 +208,5 @@ extern bool D_key_pressed;
 // Variável para modificar o tipo de câmera (look-at/free camera)
 extern bool freeCamera;
 extern bool lookatCamera;
+
+extern glm::vec3 g_rayPoint;

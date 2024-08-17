@@ -28,8 +28,8 @@ uniform mat4 projection;
 #define WIRE 4
 #define DISPLAY 5
 #define TABLE 6
-#define INPUT1_DIGIT 7
-#define INPUT2_DIGIT 8
+#define AND_INPUT1_DIGIT 7
+#define AND_INPUT2_DIGIT 8
 #define PLANE_WIRE 9
 #define LIGHTBULB_NOT 10
 #define PLANE_NOT 11
@@ -39,6 +39,11 @@ uniform mat4 projection;
 #define OR 16
 #define PLANE_OR 17
 #define LIGHTBULB_OR 18
+#define OR_INPUT2_DIGIT 19
+#define OR_INPUT1_DIGIT 20
+#define WIRE_INPUT1_DIGIT 21
+#define NOT_INPUT1_DIGIT 22
+
 uniform int object_id;
 
 // Parâmetros da axis-aligned bounding box (AABB) do modelo
@@ -61,8 +66,13 @@ uniform sampler2D TextureBlocks;
 uniform sampler2D TextureGround;
 uniform sampler2D TexturePlaneOr;
 
-uniform bool u_isInput1Digit0;
-uniform bool u_isInput2Digit0;
+
+uniform bool u_andIsInput1Digit0;
+uniform bool u_andIsInput2Digit0;
+uniform bool u_orIsInput1Digit0;
+uniform bool u_orIsInput2Digit0;
+uniform bool u_notIsInputDigit0;
+uniform bool u_wireIsInputDigit0;
 
 // O valor de saída ("out") de um Fragment Shader é a cor final do fragmento.
 out vec4 color;
@@ -156,7 +166,7 @@ void main()
     }
     else if ( object_id == LIGHTBULB_WIRE ) // ON=Blinn-Phong, OFF=Diffuse, Phong shading
     {
-        if (!u_isInput1Digit0) {
+        if (!u_wireIsInputDigit0) {
             Kd = texture(TextureLightbulbON, texcoords).rgb;
             lambertDiffuseTerm = Kd * I * lambert;
             color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
@@ -169,7 +179,7 @@ void main()
     }
     else if ( object_id == LIGHTBULB_NOT ) // ON=Blinn-Phong e Phong shading, OFF=Diffuse e Gouraud shading
     {
-        if (u_isInput1Digit0) {
+        if (u_notIsInputDigit0) {
             Kd = texture(TextureLightbulbON, texcoords).rgb;
             lambertDiffuseTerm = Kd * I * lambert;
             color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
@@ -182,7 +192,7 @@ void main()
     }
     else if ( object_id == LIGHTBULB_AND ) // ON=Blinn-Phong e Phong shading, OFF=Diffuse e Gouraud shading
     {
-        if (!u_isInput1Digit0 && !u_isInput2Digit0) {
+        if (!u_andIsInput1Digit0 && !u_andIsInput2Digit0) {
             Kd = texture(TextureLightbulbON, texcoords).rgb;
             lambertDiffuseTerm = Kd * I * lambert;
             color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
@@ -195,7 +205,7 @@ void main()
     }
     else if ( object_id == LIGHTBULB_OR ) // ON=Blinn-Phong e Phong shading, OFF=Diffuse e Gouraud shading
     {
-        if (!u_isInput1Digit0 || !u_isInput2Digit0) {
+        if (!u_orIsInput1Digit0 || !u_orIsInput2Digit0) {
             Kd = texture(TextureLightbulbON, texcoords).rgb;
             lambertDiffuseTerm = Kd * I * lambert;
             color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
@@ -228,18 +238,54 @@ void main()
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
     }
-    else if (object_id == INPUT1_DIGIT) // Diffuse e Phong shading
+    else if (object_id == AND_INPUT1_DIGIT) // Diffuse e Phong shading
     {
-        if (u_isInput1Digit0)
+        if (u_andIsInput1Digit0)
             Kd = texture(TextureDigit0, texcoords).rgb;
         else
             Kd = texture(TextureDigit1, texcoords).rgb;
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
     }
-    else if (object_id == INPUT2_DIGIT) // Diffuse e Phong shading
+    else if (object_id == AND_INPUT2_DIGIT) // Diffuse e Phong shading
     {
-        if (u_isInput2Digit0)
+        if (u_andIsInput2Digit0)
+            Kd = texture(TextureDigit0, texcoords).rgb;
+        else
+            Kd = texture(TextureDigit1, texcoords).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
+    }
+    else if (object_id == OR_INPUT1_DIGIT) // Diffuse e Phong shading
+    {
+        if (u_orIsInput1Digit0)
+            Kd = texture(TextureDigit0, texcoords).rgb;
+        else
+            Kd = texture(TextureDigit1, texcoords).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
+    }
+    else if (object_id == OR_INPUT2_DIGIT) // Diffuse e Phong shading
+    {
+        if (u_orIsInput2Digit0)
+            Kd = texture(TextureDigit0, texcoords).rgb;
+        else
+            Kd = texture(TextureDigit1, texcoords).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
+    }
+    else if (object_id == NOT_INPUT1_DIGIT) // Diffuse e Phong shading
+    {
+        if (u_notIsInputDigit0)
+            Kd = texture(TextureDigit0, texcoords).rgb;
+        else
+            Kd = texture(TextureDigit1, texcoords).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
+    }
+    else if (object_id == WIRE_INPUT1_DIGIT) // Diffuse e Phong shading
+    {
+        if (u_wireIsInputDigit0)
             Kd = texture(TextureDigit0, texcoords).rgb;
         else
             Kd = texture(TextureDigit1, texcoords).rgb;
