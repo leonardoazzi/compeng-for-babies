@@ -78,6 +78,7 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/circuits/and.jpg"); // TexturePlaneAnd
     LoadTextureImage("../../data/grass-1000-mm-architextures.jpg"); // TextureFloor
     LoadTextureImage("../../data/circuits/or.jpg"); // TexturePlaneOr
+    LoadTextureImage("../../data/sky/toy-story-cloud-1g0hhs34nbf7q7ma.jpg"); // TextureSky
 
     
     // Construímos a representação de objetos geométricos através de malhas de triângulos
@@ -322,6 +323,7 @@ int main(int argc, char* argv[])
         #define OR_INPUT1_DIGIT 19
         #define WIRE_INPUT1_DIGIT 20
         #define NOT_INPUT1_DIGIT 21
+        #define SKY 22
 
         #define PLANE_WIDTH 0.2f
         #define PLANE_HEIGHT 0.145f
@@ -329,6 +331,16 @@ int main(int argc, char* argv[])
         #define DISPLAY_HEIGHT (PLANE_WIDTH / 4.0f)
         #define NUM_CIRCUITS 4
         #define CIRCUIT_WIDTH (0.75 * PLANE_WIDTH)
+
+        glDepthFunc(GL_ALWAYS); // Desativa Z-buffer para renderizar o céu
+
+        glm::mat4 skyModel = Matrix_Translate(1.0f,1.0f,1.0f)
+                * Matrix_Scale(farplane/2,farplane/2,farplane/2);
+        glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(skyModel));
+        glUniform1i(g_object_id_uniform, SKY);
+        DrawVirtualObject("the_sphere");
+
+        glDepthFunc(GL_LESS); // Reativa o Z-buffer
 
 
         // ----------------------------------------------------------------------------------------------------------

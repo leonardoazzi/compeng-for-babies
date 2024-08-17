@@ -43,6 +43,7 @@ uniform mat4 projection;
 #define OR_INPUT1_DIGIT 19
 #define WIRE_INPUT1_DIGIT 20
 #define NOT_INPUT1_DIGIT 21
+#define SKY 22
 
 uniform int object_id;
 
@@ -65,6 +66,7 @@ uniform sampler2D TexturePlaneAnd;
 uniform sampler2D TextureBlocks;
 uniform sampler2D TextureFloor;
 uniform sampler2D TexturePlaneOr;
+uniform sampler2D TextureSky;
 
 uniform bool u_andIsInput1Digit0;
 uniform bool u_andIsInput2Digit0;
@@ -162,6 +164,28 @@ void main()
         lambertDiffuseTerm = Kd * I * lambert;
 
         color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
+    }
+    else if ( object_id == SKY ) // Totalmente difusa e Phong shading
+    {
+        vec4 bbox_center = (bbox_min + bbox_max) / 2.0;
+
+        float radius = length(bbox_max - bbox_center);
+
+        vec4 position_sphere = bbox_center + radius * normalize(position_model - bbox_center);
+
+        float theta = atan(position_sphere.x, position_sphere.z);
+        float phi = asin(position_sphere.y / radius);
+
+        U = (theta + M_PI) / (2.0 * M_PI);
+        V = 1.0 - (phi + M_PI / 2) / M_PI;
+
+        U = U * 5.0f;
+        V = V * 5.0f;
+
+        // Obtemos a refletância difusa a partir da leitura da imagem TextureSphere
+        Kd = texture(TextureSky, vec2(U,V)).rgb;
+
+        color.rgb = Kd;
     }
     else if ( object_id == LIGHTBULB_WIRE ) // ON=Blinn-Phong, OFF=Diffuse, Phong shading
     {
