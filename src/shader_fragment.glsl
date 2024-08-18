@@ -351,10 +351,18 @@ void main()
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm; // Diffuse
     }
-    else if (object_id == NOT || object_id == AND || object_id == OR) // Blinn-Phong e Phong shading
+    else if (object_id == AND || object_id == OR) // Blinn-Phong e Phong shading
     {
         U = texcoords.x * 2.0f;
         V = texcoords.y * 2.0f;
+        Kd = texture(TextureBlocks, vec2(U,V)).rgb;
+        lambertDiffuseTerm = Kd * I * lambert;
+        color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong
+    }
+    else if (object_id == NOT) // Blinn-Phong e Phong shading
+    {
+        U = texcoords.x;
+        V = texcoords.y;
         Kd = texture(TextureBlocks, vec2(U,V)).rgb;
         lambertDiffuseTerm = Kd * I * lambert;
         color.rgb = lambertDiffuseTerm + ambientTerm + specularTerm; // Blinn-Phong

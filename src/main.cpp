@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
     LoadTextureImage("../../data/display/textures/digit1.jpg"); // TextureDigit1
     LoadTextureImage("../../data/circuits/wire.jpg"); // TexturePlaneWire
     LoadTextureImage("../../data/circuits/not.jpg"); // TexturePlaneNot
-    LoadTextureImage("../../data/fine-textured-plastic-2000-mm-architextures.jpg"); // TextureBlocks
+    LoadTextureImage("../../data/circuits/lego.jpg"); // TextureBlocks
     LoadTextureImage("../../data/Blocks_001_COLOR_B.jpg"); // TextureSphere
     LoadTextureImage("../../data/circuits/and.jpg"); // TexturePlaneAnd
     LoadTextureImage("../../data/grass-1000-mm-architextures.jpg"); // TextureFloor
