@@ -334,8 +334,7 @@ int main(int argc, char* argv[])
 
         glDepthFunc(GL_ALWAYS); // Desativa Z-buffer para renderizar o céu
 
-        glm::mat4 skyModel = Matrix_Translate(1.0f,1.0f,1.0f)
-                * Matrix_Scale(farplane/2,farplane/2,farplane/2);
+        glm::mat4 skyModel = Matrix_Scale(farplane/2,farplane/2,farplane/2);
         glUniformMatrix4fv(g_model_uniform, 1 , GL_FALSE , glm::value_ptr(skyModel));
         glUniform1i(g_object_id_uniform, SKY);
         DrawVirtualObject("the_sphere");
