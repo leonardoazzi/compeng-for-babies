@@ -4,7 +4,7 @@
 
 /**
  * @brief Verifica se dois cubos representados por AABBs se intersectam nos eixos x, y e z.
- * Adaptado de https://gamedev.stackexchange.com/questions/96060/collision-detection-in-opengl
+ * FONTE (adaptado) https://gamedev.stackexchange.com/questions/96060/collision-detection-in-opengl
  *
  * @param a O primeiro cubo AABB.
  * @param b O segundo cubo AABB.
@@ -28,7 +28,7 @@ bool AABBIntersectsAABB(AABB a, AABB b){
  * @param cube O eixo-alinhado bounding box (AABB) que representa o cubo.
  * @return True se o raio intersectar com o cubo, false caso contrário.
  * 
- * Adaptado de: https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection.html
+ * FONTE (adaptado): https://www.scratchapixel.com/lessons/3d-basic-rendering/minimal-ray-tracer-rendering-simple-shapes/ray-box-intersection.html
  * Referência:
  * Shirley, P., Wald, I., Marrs, A. (2021). Ray Axis-Aligned Bounding Box Intersection. 
  * In: Marrs, A., Shirley, P., Wald, I. (eds) Ray Tracing Gems II. Apress, Berkeley, CA. 
@@ -72,7 +72,7 @@ bool RayIntersectsAABB(glm::vec4 rayOrigin, glm::vec3 rayDirection, AABB cube){
 
 /**
  * Verifica se uma esfera intersecta uma AABB (Axis-Aligned Bounding Box).
- * Referência: https://learnopengl.com/In-Practice/2D-Game/Collisions/Collision-detection
+ * FONTE (adaptado) https://learnopengl.com/In-Practice/2D-Game/Collisions/Collision-detection
  * 
  * @param sphere A esfera a ser verificada, definida por seu centro e seu raio.
  * @param aabb O AABB a ser testada.
@@ -147,7 +147,7 @@ AABB GetWorldAABB(SceneObject obj, glm::mat4 model)
 
 /**
  * @brief Projeta um ray casting a partir das coordenadas do mouse.
- * Adaptado de: https://antongerdelan.net/opengl/raycasting.html
+ * FONTE (adaptado): https://antongerdelan.net/opengl/raycasting.html
  * 
  * As coordenadas do mouse são convertidas para o sistema de coordenadas normalizado (NDC),
  * em seguida para o sistema de coordenadas do clip, para o sistema de coordenadas
