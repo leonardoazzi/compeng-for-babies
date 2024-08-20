@@ -99,6 +99,92 @@ bool SphereIntersectsAABB(Sphere sphere, AABB aabb) {
 }
 
 /**
+ * Verifica se um ponto intersecta uma esfera. Baseado na função SphereIntersectsAABB().
+ * 
+ * @param point O ponto a ser verificado.
+ * @param sphere A esfera a ser verificada.
+ * @return true se o ponto intersecta a esfera, false caso contrário.
+ */
+bool PointIntersectsSphere(glm::vec3 point, Sphere sphere) {
+    float euclideanDistance = 0.0f;
+
+    // Reduz o raio da esfera para evitar falsos positivos
+    sphere.radius -= 0.5f;
+
+    for (int i = 0; i < 3; ++i) {
+        euclideanDistance += (point[i] - sphere.center[i]) * (point[i] - sphere.center[i]);
+    }
+
+    return euclideanDistance >= (sphere.radius * sphere.radius);
+}
+
+/**
+ * Calcula a resolução de colisão entre um ponto e uma esfera.
+ * 
+ * @param point O ponto a ser testado.
+ * @param sphere A esfera com a qual o ponto está sendo testado.
+ * @return Um vetor de deslocamento que reposiciona o ponto para fora da esfera, caso haja colisão. Caso contrário, retorna um vetor nulo.
+ */
+glm::vec4 SphereCollisionResolution(glm::vec3 point, Sphere sphere) {
+    // Inicializa o vetor de offset a ser utilizado para reposicionar o ponto
+    glm::vec4 offset = {0.0f, 0.0f, 0.0f, 0.0f};
+
+    // Vetor entre o ponto e o centro da esfera
+    glm::vec4 directionVec = {point - sphere.center, 0.0f};
+
+    // Define o vetor direção no plano xz apenas
+    directionVec.y = 0.0f;
+    // Ângulo do vetor direção no plano xz
+    float angle = glm::atan(directionVec.z, directionVec.x);
+    // Vetor que define o raio da esfera
+    glm::vec4 radiusVec = {(sphere.radius - 0.5f - sphere.center.x), 0.0f, 0.0f, 0.0f};
+
+    // Rotaciona o radiusVec no mesmo sentido do directionVec
+    float cosAngle = glm::cos(angle);
+    float sinAngle = glm::sin(angle);
+    float newX = radiusVec.x * cosAngle - radiusVec.z * sinAngle;
+    float newZ = radiusVec.x * sinAngle + radiusVec.z * cosAngle;
+    radiusVec.x = newX;
+    radiusVec.z = newZ;
+
+    // Calcula o módulo dos vetores para compará-los
+    float tam_direction = glm::length(directionVec);
+    float tam_raio = glm::length(radiusVec);
+
+    // Se o módulo do vetor direção for maior que o módulo do raio, o ponto está fora da esfera
+    if (tam_direction > tam_raio){
+        offset = directionVec - radiusVec;
+    }
+
+    return offset;
+
+}
+
+/**
+ * @brief Calcula a resolução de colisão entre um cubo AABB e uma esfera.
+ * Utilizou-se o Github Copilot para auxiliar na implementação.
+ * 
+ * @param aabb O cubo AABB.
+ * @param sphere A esfera.
+ * @return Um vetor de deslocamento que reposiciona o cubo para fora da esfera, caso haja colisão. Caso contrário, retorna um vetor nulo.
+ */
+glm::vec3 AABBAndSphereResolution(AABB aabb, Sphere sphere) {
+    // Calcula o ponto mais próximo da AABB ao centro da esfera
+    glm::vec3 closestPoint = glm::clamp(sphere.center, aabb.min, aabb.max);
+    // Calcula o vetor entre o ponto mais próximo e o centro da esfera
+    glm::vec3 direction = closestPoint - sphere.center;
+    // Calcula a distância entre o ponto mais próximo e o centro da esfera
+    float distance = glm::length(direction);
+    // Verifica se há colisão
+    if (distance < sphere.radius && distance > 0.1f) {
+        // Calcula o vetor de deslocamento para reposicionar o cubo para fora da esfera
+        glm::vec3 displacement = glm::normalize(direction) * (sphere.radius - distance);
+        return displacement;
+    }
+    // Retorna um vetor nulo se não houver colisão
+    return glm::vec3(0.0f);
+}
+/**
  * @brief Calcula a bounding box de um grupo de objetos da cena.
  * 
  * @param objects Vetor de objetos da cena.
