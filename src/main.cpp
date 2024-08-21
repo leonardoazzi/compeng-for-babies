@@ -140,6 +140,7 @@ int main(int argc, char* argv[])
 
     // Inicializa a flag de colisão com a câmera
     bool isTableCollision = false;
+    bool isSkyCollision = false;
 
     // Inicializa as informações sobre os objetos da cena
     GameObject table = {
@@ -177,6 +178,7 @@ int main(int argc, char* argv[])
         NotCircuit.scale = glm::vec3(0.0f, 0.0f, 0.0f),
         NotCircuit.rotation = glm::vec3(0.0f, 0.0f, 0.0f),
     };
+    glm::vec4 cameraCollisionOffset = glm::vec4(0.0f,0.0f,0.0f,0.0f);
 
     // Ficamos em um loop infinito, renderizando, até que o usuário feche a janela
     while (!glfwWindowShouldClose(window))
@@ -245,11 +247,12 @@ int main(int argc, char* argv[])
         };
         glm::vec4 camera_lookat_l    = glm::vec4(0.0f,0.0f,0.0f,1.0f); // Ponto "l", para onde a câmera (look-at) estará sempre olhando
         glm::vec4 camera_view_vector = camera_lookat_l - camera_position_c; // Vetor "view", sentido para onde a câmera está virada
-
+        
         // Câmera livre
         if (freeCamera == true){
-            camera_movement.y = 1.0f; // Fixa o movimento no eixo Y para evitar que a câmera livre suba ou desça
-            camera_position_c  = glm::vec4(x_fixed,y_fixed,z_fixed,1.0f) + camera_movement; // Ponto "c", centro da câmera
+            camera_movement.y = 1.2f; // Fixa o movimento no eixo Y para evitar que a câmera livre suba ou desça
+            camera_movement = camera_movement - cameraCollisionOffset;
+            camera_position_c  = glm::vec4(x_fixed,y_fixed,z_fixed,1.0f) + camera_movement;
             camera_view_vector = glm::vec4(-x,-y,-z,0.0f); // Vetor "view", sentido para onde a câmera está virada
         };
 
@@ -340,7 +343,6 @@ int main(int argc, char* argv[])
         DrawVirtualObject("the_sphere");
 
         glDepthFunc(GL_LESS); // Reativa o Z-buffer
-
 
         // ----------------------------------------------------------------------------------------------------------
         // 0 - TABLE
@@ -1008,11 +1010,21 @@ int main(int argc, char* argv[])
 
         // Define a hitsphere da câmera
         Sphere cameraSphere = {camera_position_c, 0.2f};
-
+        Sphere skySphere = {glm::vec3(0.0f,0.0f,0.0f), -farplane/2.0f};
+        
         // Aumenta a AABB da mesa em y para detectar a colisão com a hitsphere da câmera
         table.bbox.max.y += 100.0f;
 
         isTableCollision = SphereIntersectsAABB(cameraSphere, table.bbox);
+        isSkyCollision = PointIntersectsSphere(cameraSphere.center, skySphere);
+
+        if (isTableCollision){
+            cameraCollisionOffset = {AABBAndSphereResolution(table.bbox, cameraSphere), 0.0f};
+        } else if (isSkyCollision) {
+            cameraCollisionOffset = SphereCollisionResolution(camera_position_c, skySphere);
+        } else {
+            cameraCollisionOffset = {0.0f, 0.0f, 0.0f, 0.0f};
+        }
 
         glUniformMatrix4fv(g_view_uniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
         glUniformMatrix4fv(g_projection_uniform, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
@@ -1042,7 +1054,7 @@ int main(int argc, char* argv[])
 
         // Realiza movimentação de objetos.
         // A flag isTableCollision é um protótipo de resolução de colisão entre a câmera e a mesa
-        if (W_key_pressed && !isTableCollision) {
+        if (W_key_pressed) {
             // Movimenta câmera para frente
             camera_movement += -camera_w * speed * delta_t;
         }
