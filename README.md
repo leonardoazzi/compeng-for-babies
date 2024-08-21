@@ -4,7 +4,6 @@ Implementação em OpenGL de circuitos digitais booleanos básicos, em uma simul
 ![intro](./docs/bezier.gif)
 
 # Contribuição
-    Parágrafo listando as contribuição de cada membro da dupla para o trabalho;
 
 **Beatriz Forneck Soviero**
 - Ideia do projeto e implementação inicial, a partir dos laboratórios;
@@ -27,26 +26,30 @@ Implementação em OpenGL de circuitos digitais booleanos básicos, em uma simul
 - [Resolução de bouncing para colisões esfera-AABB e ponto-esfera](https://github.com/leonardoazzi/compeng-for-babies/pull/63)
 
 # Uso de Large Language Models
-    Parágrafo curto indicando se a dupla fez uso do ChatGPT (ou alguma outra ferramenta similar, como Github Copilot, OpenAI Codex, etc.) para desenvolvimento do trabalho, descrevendo como a ferramenta foi utilizada e para quais partes do trabalho. O parágrafo deve também incluir uma análise crítica descrevendo quão útil a dupla achou a ferramenta, onde ela auxiliou e onde ela não auxiliou adequadamente;
 
-Utilizamos o Github Copilot com dois objetivos: acelerar a codificação repetitiva com o auto complete, e ajudar na criação de métodos e funções com prompt engineering. Sua principal aplicação foi no módulo collisions.cpp, onde maior parte das implementações necessitou de um material complementar. O auto complete foi bastante útil para diminuir o tempo de desenvolvimento de cada funcionalidade, pois os erros do Copilot são rapidamente minimizados ao prover maior contexto na linha de código - o que gera menos frustrações. Já a função de chat dentro do editor foi utilizada para tentar escrever ou reescrever funções. Esta tarefa depende muito do contexto dado ao Copilot e do prompt descrito. Além disto, como o escopo em geral era maior do que com o auto complete, na maioria das vezes gerou linhas de código que necessitaram minutos ou horas adicionais de debug. O uso da ferramenta pode ajudar a garantir uma solução funcional, mas o aprendizado pleno ainda exige um processo que passa por pesquisa, leitura, entendimento e implementação. Portanto, demos ênfase em referências reais para o desenvolvimento das colisões. Já chat fora do editor foi utilizado como uma forma de traduzir dúvidas ou problemas com um vocabulário menos específico, já que o chat tem o contexto do código-fonte, o que foi útil para direcionar dúvidas e realizar buscas externas. Assim, particularmente, acreditamos que o auto complete foi a melhor funcionalidade do Github Copilot para projetos práticos, principalmente em um semestre reduzido como este.
+Utilizamos o Github Copilot com dois objetivos: acelerar a codificação repetitiva com o auto complete, e ajudar na criação de métodos e funções com prompt engineering. Sua principal aplicação foi no módulo collisions.cpp, onde maior parte das implementações necessitou de um material complementar. O auto complete foi bastante útil para diminuir o tempo de desenvolvimento de cada funcionalidade, pois os erros do Copilot são rapidamente minimizados ao prover maior contexto na linha de código. Já a função de chat dentro do editor foi utilizada para tentar escrever ou reescrever funções. Esta tarefa depende muito do contexto dado ao Copilot e do prompt descrito. Além disto, como o escopo em geral era maior do que com o auto complete, na maioria das vezes gerou linhas de código que necessitaram minutos ou horas adicionais de debug. O uso da ferramenta pode ajudar a garantir uma solução funcional, mas não garante aprendizado. 
 
-Utilizamos o ChatGPT para a geração dos modelos das portas lógicas AND e NOT. O prompt utilizado pedia para dar as instruções necessárias para criar os formatos dos modelos desejados a partir de um plano 2D. O ChatGPT foi útil para gerar as instruções certas mas não conseguiu prover um modo de criar a porta OR.
+Portanto, demos ênfase em referências reais para o desenvolvimento das colisões. Já chat fora do editor foi utilizado como uma forma de traduzir dúvidas ou problemas com um vocabulário menos específico, já que o chat tem o contexto do código-fonte, o que foi útil para direcionar dúvidas e realizar buscas externas. Assim, particularmente, acreditamos que o auto complete foi a melhor funcionalidade do Github Copilot para projetos práticos, principalmente em um semestre reduzido como este.
+
+Utilizamos também o ChatGPT para a geração dos modelos das portas lógicas AND e NOT. O prompt utilizado pedia para dar as instruções necessárias para criar os formatos dos modelos desejados a partir de um plano 2D. O ChatGPT foi útil para gerar as instruções certas mas não conseguiu prover um modo de criar a porta OR.
+
+Também tentamos utilizar os modelos generativos LGM Mini e splat-to-mash sugeridos pelo Prof. Gastal, mas não obtivemos bons resultados pela falta de imagens de referência com blocos reais que representam a forma dos circuitos.
 
 # Processo de desenvolvimento e conceitos de CG
-    Descrição do processo de desenvolvimento e do uso em sua aplicação dos conceitos de Computação Gráfica estudados e listados nos requisitos acima;
 
 Iniciamos o projeto a partir da prática dos laboratórios de 1 a 5, alguns adiantados, onde podemos colocar na prática conceitos sobre as estruturas de dados, renderização, pipeline gráfica, transformações hierárquicas, modelos de iluminação e mapeamento de texturas. A partir da ideia inspirada no livro, foi criado o primeiro protótipo que continha a mesa e os circuitos Wire, NOT e AND. O input dos circuitos foi mapeado a partir do input do teclado e passado para o fragment shader, onde realiza a lógica booleana para a troca de texturas de acordo com os inputs.
 
-- Câmera
+## Câmera
 
 A partir da câmera look-at, tivemos o desafio inspirado no Laboratório 2 de implementar a câmera livre. Implementamos as matrizes de transformação para completar a pipeline gráfica, de coordenadas do objeto para coordenadas NDC, com projeções ortográfica e perspectiva. O input de movimento do ponto 'c' da câmera foi mapeado para as teclas 'WASD'. O ângulo da câmera é modificado com o cálculo em coordenadas polares, a partir do movimento do mouse enquanto pressiona o botão esquerdo. A coordenada y do ponto 'c' da câmera é fixada em 1.0f, para simular uma pessoa de altura regular caminhando no ambiente do cenário.
 
-- Circuitos e objetos
+## Circuitos e objetos
 
 Todos os circuitos e seus elementos foram posicionados utilizando um mesmo `Model matrix`, o que facilitou o uso de transformações hierárquicas de modo que as posições dos circuitos eram relativas ao tamanho da mesa e os elementos como os blocos, fios, displays e lâmpadas eram baseadas na largura de cada circuito.
 
-- Testes de intersecção
+Os blocos foram modelados com o Blender, e objetos como a mesa e a lâmpada foram obtidos de repositórios de assets 3D, como o [PolyHaven](https://polyhaven.com/). Todos este objetos são importados em objects.cpp, em formato .obj. Os objetos criados no Blender exigiram a customização das coordenadas de textura, o que envolveu os conceitos aprendidos na disciplina em mapeamento de texturas.
+
+## Testes de intersecção
   
 Foram implementados três testes de intersecção: raio-AABB, esfera-AABB e ponto-esfera. 
 
@@ -86,27 +89,46 @@ Por fim, implementou-se o teste de intersecção ponto-esfera. Este teste é o m
 
 A resolução para a colisão ponto-esfera foi aplicada entre o ponto central da câmera e a esfera skySphere, que representa o background do cenário, com objetivo de que câmera livre não ultrapasse o cenário. Calcula-se o vetor entre o ponto e o centro da esfera e, para fins de simplificação, reduz sua dimensão para o plano xz, pois a coordenada y da câmera livre é limitada em 1.0f. Calcula-se o vetor que define o raio da esfera, inicialmente alinhado com o eixo x e com um offset, para que a hitsphere seja ligeiramente menor do que a esfera, evitando que a câmera atravesse o objeto mesmo com a colisão. O ângulo do vetor raio é rotacionado para ser paralelo com o vetor de direção ponto-centro, para ser possível compará-los sem o offset angular. A partir do módulo destes dois vetores, se o vetor entre ponto-centro for maior que o raio da hitsphere, calcula-se o vetor de offset, que é representa a intersecção do ponto, neste caso, com a área fora da esfera, pois a ideia é manter a câmera dentro de seu volume. Esta disparidade é retornada e subtraída do vetor de movimento da câmera. Para esta resolução não utilizou-se referências, sendo deduzida, pois a solução é relativamente simples.
 
-- Modelos de iluminação
+## Modelos de iluminação
 
-    * Os fios utilizam modelo de interpolação de Gouraud e o restante dos objetos utiliza interpolação de Phong;
-    * O céu é representado por uma esfera com um modelo de iluminação totalmente difuso;
-    * Os planos com os nomes dos circuitos, as lâmpadas desligada, os diplays dos inputs e a mesa utilizam modelo de iluminação difusa, enquanto o restante utiliza Blinn-Phong.
+Os fios utilizam modelo de interpolação de Gouraud e o restante dos objetos utiliza interpolação de Phong; 
 
-- Mapeamento de texturas
-    * Todos os objetos têm texturas aplicadas;
-    * Os modelos criados pelos integrantes têm suas coordenadas de texturas criadas pelo Blender;
-    * Todos os objetos, excetuando as esferas que utilizam projeção esférica, têm suas texturas mapeadas pelas coordenadas de texturas presentes nos arquivos `.obj`;
-    * O céu, o chão e as portas AND e OR têm coordenadas adaptadas para exceder o intervalo [0,1] e utilizam o wrapping GL_REPEAT.
+![gouraud](./docs/gouraud.png)
+
+O céu é representado por uma esfera com um modelo de iluminação totalmente difuso;
+
+![sky](./docs/sky.png)
+
+Os planos com os nomes dos circuitos, as lâmpadas desligada, os diplays dos inputs e a mesa utilizam modelo de iluminação difusa, enquanto o restante utiliza Blinn-Phong.
+
+![iluminacao](./docs/iluminacao.png)
+
+## Mapeamento de texturas
+
+* Todos os objetos têm texturas aplicadas;
+* Os modelos criados pelos integrantes têm suas coordenadas de texturas criadas pelo Blender;
+* Todos os objetos, excetuando as esferas que utilizam projeção esférica, têm suas texturas mapeadas pelas coordenadas de texturas presentes nos arquivos `.obj`;
+* O céu, o chão e as portas AND e OR têm coordenadas adaptadas para exceder o intervalo [0,1] e utilizam o wrapping GL_REPEAT.
+
+## Animação com curva de Bézier
+
+Utilizamos uma curva de Bézier cúbica como trajetória para a animação inicial da câmera, que inicia olhando para o plano xy e termina olhando para o plano xz. 
+
+![bezier](./docs/bezier.gif)
+
+A parametrização desta curva permitiu uma animação suave e simples de implementar 'in-engine'.
+
+![bezier](./docs/cubic-bezier-steps.gif)
+
+Imagem: https://acegikmo.medium.com/the-ever-so-lovely-b%C3%A9zier-curve-eb27514da3bf
 
 # Imagens da aplicação
-    No mínimo duas imagens mostrando o funcionamento da aplicação;
 
 ![top-down](./docs/top-down.png)
 
 ![cenario](./docs/cenario.png)
 
 # Manual
-    Um manual descrevendo a utilização da aplicação (atalhos de teclado, etc.);
 
 ## Interagindo com a câmera
 
@@ -128,10 +150,9 @@ Ao apontar o mouse para algum display e clicar com o botão esquerdo, o input al
 | D         | Anda para a direita no modo câmera livre  |
 | C         | Alterna entre câmera look-at e câmera livre         |
 | H         | Exibe textos de debug  |
-| Y         | Rotaciona o posicionado sob o mouse  |
+| Y         | Rotaciona o circuito posicionado sob o mouse em 90° |
 
 # Setup
-    Explicação de todos os passos necessários para compilação e execução da aplicação;
 
 ## Windows
 
