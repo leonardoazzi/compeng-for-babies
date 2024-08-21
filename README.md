@@ -31,7 +31,7 @@ Implementação em OpenGL de circuitos digitais booleanos básicos, em uma simul
 
 Utilizamos o Github Copilot com dois objetivos: acelerar a codificação repetitiva com o auto complete, e ajudar na criação de métodos e funções com prompt engineering. Sua principal aplicação foi no módulo collisions.cpp, onde maior parte das implementações necessitou de um material complementar. O auto complete foi bastante útil para diminuir o tempo de desenvolvimento de cada funcionalidade, pois os erros do Copilot são rapidamente minimizados ao prover maior contexto na linha de código - o que gera menos frustrações. Já a função de chat dentro do editor foi utilizada para tentar escrever ou reescrever funções. Esta tarefa depende muito do contexto dado ao Copilot e do prompt descrito. Além disto, como o escopo em geral era maior do que com o auto complete, na maioria das vezes gerou linhas de código que necessitaram minutos ou horas adicionais de debug. O uso da ferramenta pode ajudar a garantir uma solução funcional, mas o aprendizado pleno ainda exige um processo que passa por pesquisa, leitura, entendimento e implementação. Portanto, demos ênfase em referências reais para o desenvolvimento das colisões. Já chat fora do editor foi utilizado como uma forma de traduzir dúvidas ou problemas com um vocabulário menos específico, já que o chat tem o contexto do código-fonte, o que foi útil para direcionar dúvidas e realizar buscas externas. Assim, particularmente, acreditamos que o auto complete foi a melhor funcionalidade do Github Copilot para projetos práticos, principalmente em um semestre reduzido como este.
 
-Utilizamos o ChatGPT para... (Bia, adicionar o que tu falou sobre o passo-a-passo no Blender xD)
+Utilizamos o ChatGPT para a geração dos modelos das portas lógicas AND e NOT. O prompt utilizado pedia para dar as instruções necessárias para criar os formatos dos modelos desejados a partir de um plano 2D. O ChatGPT foi útil para gerar as instruções certas mas não conseguiu prover um modo de criar a porta OR.
 
 # Processo de desenvolvimento e conceitos de CG
     Descrição do processo de desenvolvimento e do uso em sua aplicação dos conceitos de Computação Gráfica estudados e listados nos requisitos acima;
@@ -44,6 +44,7 @@ A partir da câmera look-at, tivemos o desafio inspirado no Laboratório 2 de im
 
 - Circuitos e objetos
 
+Todos os circuitos e seus elementos foram posicionados utilizando um mesmo `Model matrix`, o que facilitou o uso de transformações hierárquicas de modo que as posições dos circuitos eram relativas ao tamanho da mesa e os elementos como os blocos, fios, displays e lâmpadas eram baseadas na largura de cada circuito.
 
 - Testes de intersecção
   
@@ -87,13 +88,15 @@ A resolução para a colisão ponto-esfera foi aplicada entre o ponto central da
 
 - Modelos de iluminação
 
-...
+    * Os fios utilizam modelo de interpolação de Gouraud e o restante dos objetos utiliza interpolação de Phong;
+    * O céu é representado por uma esfera com um modelo de iluminação totalmente difuso;
+    * Os planos com os nomes dos circuitos, as lâmpadas desligada, os diplays dos inputs e a mesa utilizam modelo de iluminação difusa, enquanto o restante utiliza Blinn-Phong.
 
 - Mapeamento de texturas
-
-...
-
-Realizou-se o wrapping GL_REPEAT para a textura que representa o chão, forçando que suas coordenadas saiam do intervalo [0,1].
+    * Todos os objetos têm texturas aplicadas;
+    * Os modelos criados pelos integrantes têm suas coordenadas de texturas criadas pelo Blender;
+    * Todos os objetos, excetuando as esferas que utilizam projeção esférica, têm suas texturas mapeadas pelas coordenadas de texturas presentes nos arquivos `.obj`;
+    * O céu, o chão e as portas AND e OR têm coordenadas adaptadas para exceder o intervalo [0,1] e utilizam o wrapping GL_REPEAT.
 
 # Imagens da aplicação
     No mínimo duas imagens mostrando o funcionamento da aplicação;
@@ -125,6 +128,7 @@ Ao apontar o mouse para algum display e clicar com o botão esquerdo, o input al
 | D         | Anda para a direita no modo câmera livre  |
 | C         | Alterna entre câmera look-at e câmera livre         |
 | H         | Exibe textos de debug  |
+| Y         | Rotaciona o posicionado sob o mouse  |
 
 # Setup
     Explicação de todos os passos necessários para compilação e execução da aplicação;
